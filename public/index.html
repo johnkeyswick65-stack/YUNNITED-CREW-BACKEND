@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>YUNNITED CREW — Backend</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+
+  <header class="topbar">
+    <div class="brand">
+      <div class="logo">YC</div>
+      <div>
+        <h1>YUNNITED CREW</h1>
+        <p>Backend & Marketplace System</p>
+      </div>
+    </div>
+    <span class="status">
+      <span></span> ONLINE
+    </span>
+  </header>
+
+  <main>
+    <section class="hero">
+      <p class="eyebrow">BACKEND SYSTEM</p>
+      <h2>O maior mercado Branco de Moçambique</h2>
+      <p class="description">
+        Sistema central responsável pelos produtos, imagens e administração
+        do YUNNITED CREW.
+      </p>
+
+      <div class="actions">
+        <a href="/api/status" class="button button-light">Ver API</a>
+        <a href="/admin/login.html" class="button button-dark">Área Administrativa</a>
+      </div>
+    </section>
+
+    <section class="cards">
+      <article class="card">
+        <span class="number" id="productCount">—</span>
+        <h3>Produtos</h3>
+        <p>Produtos disponíveis através da API.</p>
+      </article>
+
+      <article class="card">
+        <span class="number">API</span>
+        <h3>Sistema</h3>
+        <p>Servidor online e conectado ao marketplace.</p>
+      </article>
+
+      <article class="card">
+        <span class="number">ADMIN</span>
+        <h3>Gestão</h3>
+        <p>Área protegida para administrar os produtos.</p>
+      </article>
+    </section>
+  </main>
+
+  <footer>
+    <p>© 2026 YUNNITED CREW · Backend System</p>
+  </footer>
+
+  <script>
+    fetch('/api/products')
+      .then(response => response.json())
+      .then(data => {
+        if (data.success && Array.isArray(data.products)) {
+          document.getElementById('productCount').textContent =
+            data.products.length;
+        }
+      })
+      .catch(() => {});
+  </script>
+
+</body>
+</html>

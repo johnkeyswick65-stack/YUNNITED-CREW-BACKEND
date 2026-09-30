@@ -41,7 +41,7 @@ const upload = multer({
 app.use('/uploads', express.static(uploadDir));
 
 // Servir o frontend do YUNNITED CREW
-const frontendPath = path.join(__dirname, '..');
+const frontendPath = path.join(__dirname, 'public');
 app.use(express.static(frontendPath));
 
 app.use(session({
