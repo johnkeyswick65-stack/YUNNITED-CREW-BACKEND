@@ -1,0 +1,110 @@
+[
+  {
+    "id": "1790437657339",
+    "name": "Bell hooks",
+    "price": 79.9,
+    "category": "world-library",
+    "stock": 5,
+    "description": "Romance",
+    "image": "/uploads/1790545289653-974344067.jpg"
+  },
+  {
+    "id": "1790440719271",
+    "name": "A hipótese do amor",
+    "price": 99.9,
+    "category": "world-library",
+    "stock": 5,
+    "description": "Romance",
+    "image": "/uploads/1790441569467-737557140.jpg"
+  },
+  {
+    "id": "1790501153890",
+    "name": "Chapéu de Balde",
+    "price": 350,
+    "category": "moda",
+    "stock": 15,
+    "description": "Chapéu pra passar verão com estilo",
+    "image": "/uploads/1790501172544-613265720.jpg"
+  },
+  {
+    "id": "1790501316022",
+    "name": "Todas as suas imperfeições",
+    "price": 79.9,
+    "category": "world-library",
+    "stock": 5,
+    "description": "Romance",
+    "image": "/uploads/1790501316008-957112901.jpg"
+  },
+  {
+    "id": "1790501506495",
+    "name": "Samsung G. A05",
+    "price": 4500,
+    "category": "acessorios",
+    "stock": 5,
+    "description": "64Gb de espaço",
+    "image": "/uploads/1790501506452-969549843.jpg"
+  },
+  {
+    "id": "1790528681280",
+    "name": "Hábitos atômicos ",
+    "price": 89.9,
+    "category": "world-library",
+    "stock": 5,
+    "description": "Desenvolvimento pessoal ",
+    "image": "/uploads/1790528681141-22382427.jpg"
+  },
+  {
+    "id": "1790528782246",
+    "name": "Ulalaphi ",
+    "price": 69.9,
+    "category": "world-library",
+    "stock": 5,
+    "description": "Cultura ",
+    "image": "/uploads/1790528782207-568061905.jpg"
+  },
+  {
+    "id": "1790528854082",
+    "name": "Marketing digital ",
+    "price": 89.9,
+    "category": "world-library",
+    "stock": 5,
+    "description": "ebook",
+    "image": "/uploads/1790528853995-974341205.jpg"
+  },
+  {
+    "id": "1790528965546",
+    "name": "DGD 11ª",
+    "price": 20,
+    "category": "world-library",
+    "stock": 5,
+    "description": "Escolar",
+    "image": "/uploads/1790528965503-104975635.jpg"
+  },
+  {
+    "id": "1790545572743",
+    "name": "iPhone XR",
+    "price": 8500,
+    "category": "acessorios",
+    "stock": 5,
+    "description": "128GB e bateria 78%",
+    "image": "/uploads/1790545572678-851028499.jpg"
+  },
+  {
+    "id": "1790546253959",
+    "name": "iPhone XR",
+    "price": 8500,
+    "category": "acessorios",
+    "stock": 5,
+    "description": "128GB e bateria 78%",
+    "image": "/uploads/1790546477536-294396422.jpg"
+  },
+  {
+    "id": "1790546407385",
+    "name": "Chapéu de Balde",
+    "price": 350,
+    "category": "moda",
+    "stock": 5,
+    "description": "Castanho escuro",
+    "image": "/uploads/1790546452244-550839763.jpg"
+  }
+]

@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Login | YUNNITED CREW</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Arial, Helvetica, sans-serif;
+      background: #0b0b0b;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .login-wrapper {
+      width: 100%;
+      max-width: 420px;
+    }
+
+    .brand {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+
+    .brand-name {
+      font-size: 28px;
+      font-weight: 800;
+      letter-spacing: 1px;
+      margin: 0;
+    }
+
+    .brand-line {
+      width: 45px;
+      height: 3px;
+      background: #fff;
+      margin: 12px auto;
+      border-radius: 10px;
+    }
+
+    .brand-subtitle {
+      color: #999;
+      font-size: 13px;
+      margin: 0;
+    }
+
+    .login-card {
+      background: #151515;
+      border: 1px solid #292929;
+      border-radius: 18px;
+      padding: 30px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.35);
+    }
+
+    .login-card h2 {
+      margin: 0 0 8px;
+      font-size: 22px;
+    }
+
+    .login-card .description {
+      color: #999;
+      font-size: 14px;
+      margin: 0 0 26px;
+    }
+
+    .field {
+      margin-bottom: 18px;
+    }
+
+    .field label {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .field input {
+      width: 100%;
+      padding: 13px 14px;
+      border: 1px solid #333;
+      border-radius: 10px;
+      background: #0d0d0d;
+      color: #fff;
+      font-size: 15px;
+      outline: none;
+    }
+
+    .field input:focus {
+      border-color: #fff;
+    }
+
+    .button {
+      width: 100%;
+      border: 0;
+      border-radius: 10px;
+      padding: 14px;
+      background: #fff;
+      color: #000;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    .button:hover {
+      opacity: 0.9;
+    }
+
+    .button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    #message {
+      min-height: 20px;
+      text-align: center;
+      margin: 18px 0 0;
+      font-size: 14px;
+      color: #ddd;
+    }
+
+    .footer {
+      text-align: center;
+      color: #666;
+      font-size: 12px;
+      margin-top: 22px;
+    }
+
+    @media (max-width: 480px) {
+      .login-card {
+        padding: 24px 20px;
+      }
+
+      .brand-name {
+        font-size: 24px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <main class="login-wrapper">
+
+    <div class="brand">
+      <h1 class="brand-name">YUNNITED CREW</h1>
+      <div class="brand-line"></div>
+      <p class="brand-subtitle">O maior mercado Branco de Moçambique</p>
+    </div>
+
+    <section class="login-card">
+
+      <h2>Área administrativa</h2>
+      <p class="description">
+        Entre para gerir os produtos do YUNNITED CREW.
+      </p>
+
+      <form id="loginForm">
+
+        <div class="field">
+          <label for="username">Utilizador</label>
+          <input
+            type="text"
+            id="username"
+            autocomplete="username"
+            required
+          >
+        </div>
+
+        <div class="field">
+          <label for="password">Palavra-passe</label>
+          <input
+            type="password"
+            id="password"
+            autocomplete="current-password"
+            required
+          >
+        </div>
+
+        <button type="submit" class="button" id="loginButton">
+          Entrar
+        </button>
+
+      </form>
+
+      <p id="message"></p>
+
+    </section>
+
+    <div class="footer">
+      YUNNITED CREW • Administração
+    </div>
+
+  </main>
+
+  <script>
+    const loginForm = document.getElementById('loginForm');
+    const message = document.getElementById('message');
+    const loginButton = document.getElementById('loginButton');
+
+    loginForm.addEventListener('submit', async (event) => {
+      event.preventDefault();
+
+      const username = document.getElementById('username').value;
+      const password = document.getElementById('password').value;
+
+      loginButton.disabled = true;
+      loginButton.textContent = 'A entrar...';
+      message.textContent = '';
+
+      try {
+        const response = await fetch('/api/login', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          credentials: 'include',
+          body: JSON.stringify({
+            username,
+            password
+          })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          message.textContent = 'Login efetuado com sucesso.';
+          window.location.href = '/admin/admin.html';
+        } else {
+          message.textContent = data.message;
+          loginButton.disabled = false;
+          loginButton.textContent = 'Entrar';
+        }
+
+      } catch (error) {
+        message.textContent = 'Erro ao contactar o servidor.';
+        loginButton.disabled = false;
+        loginButton.textContent = 'Entrar';
+      }
+    });
+  </script>
+
+</body>
+</html>
