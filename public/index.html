@@ -31,8 +31,8 @@
       </p>
 
       <div class="actions">
-        <a href="/api/status" class="button button-light">Ver API</a>
-        <a href="/admin/login.html" class="button button-dark">Área Administrativa</a>
+        <a href="https://yunnited-crew-backend.onrender.com/api/status" class="button button-light">Ver API</a>
+        <a href="https://yunnited-crew-backend.onrender.com/admin/login.html" class="button button-dark">Área Administrativa</a>
       </div>
     </section>
 
@@ -62,16 +62,36 @@
   </footer>
 
   <script>
-    fetch('/api/products')
-      .then(response => response.json())
-      .then(data => {
-        if (data.success && Array.isArray(data.products)) {
-          document.getElementById('productCount').textContent =
-            data.products.length;
-        }
-      })
-      .catch(() => {});
-  </script>
+(async function carregarContador() {
+  const contador = document.getElementById('productCount');
+
+  try {
+    contador.textContent = '...';
+
+    const resposta = await fetch(
+      'https://yunnited-crew-backend.onrender.com/api/products',
+      { cache: 'no-store' }
+    );
+
+    if (!resposta.ok) {
+      throw new Error('A API respondeu com HTTP ' + resposta.status);
+    }
+
+    const dados = await resposta.json();
+
+    if (!dados.success || !Array.isArray(dados.products)) {
+      throw new Error('Formato de resposta inesperado');
+    }
+
+    contador.textContent = dados.products.length;
+    contador.title = 'Produtos carregados com sucesso';
+  } catch (erro) {
+    contador.textContent = '!';
+    contador.title = erro.message;
+    console.error('Erro ao carregar produtos:', erro);
+  }
+})();
+</script>
 
 </body>
 </html>
