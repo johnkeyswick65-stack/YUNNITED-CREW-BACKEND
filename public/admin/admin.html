@@ -1,0 +1,1365 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin | YUNNITED CREW</title>
+  <link rel="stylesheet" href="/admin/admin.css">
+
+<style id="image-upload-fix">
+.image-upload-button {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  width: auto !important;
+  min-width: 0 !important;
+  padding: 9px 14px !important;
+}
+
+.image-upload-button svg {
+  width: 18px !important;
+  height: 18px !important;
+  flex: 0 0 18px !important;
+}
+
+.image-upload-button span {
+  display: inline !important;
+  font-size: 13px !important;
+}
+
+#imageName {
+  display: block !important;
+  font-size: 12px !important;
+}
+</style>
+
+
+<style id="admin-logo-svg">
+.admin-brand {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+}
+
+.admin-logo-icon {
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #333;
+  border-radius: 8px;
+  color: #fff;
+  background: #111;
+  flex-shrink: 0;
+}
+
+.admin-logo-icon svg {
+  width: 17px;
+  height: 17px;
+}
+
+.admin-brand h1 {
+  margin: 0;
+}
+
+.admin-brand p {
+  margin: 3px 0 0;
+}
+
+/* =========================================
+   CATEGORIAS DO PAINEL DE ADMINISTRAÇÃO
+   ========================================= */
+
+.admin-category {
+  margin-top: 32px;
+  padding: 20px;
+  border: 1px solid #252525;
+  border-radius: 16px;
+  background: #0b0b0b;
+}
+
+.admin-category:first-child {
+  margin-top: 0;
+}
+
+.admin-category-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 18px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #252525;
+}
+
+.admin-category-head h2 {
+  margin: 0;
+  font-size: 20px;
+  color: #fff;
+}
+
+.admin-category-head span {
+  color: #888;
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.admin-category-grid {
+  margin-top: 0;
+}
+
+.admin-empty {
+  margin: 0;
+  color: #777;
+  font-size: 14px;
+}
+
+@media (max-width: 600px) {
+  .admin-category {
+    padding: 14px;
+    border-radius: 12px;
+  }
+
+  .admin-category-head h2 {
+    font-size: 17px;
+  }
+
+  .admin-category-head {
+    margin-bottom: 14px;
+  }
+}
+
+
+/* ORGANIZAÇÃO DOS PRODUTOS POR CATEGORIA */
+#productsGrid {
+  display: block !important;
+  width: 100% !important;
+}
+
+#productsGrid .admin-category {
+  display: block !important;
+  width: 100% !important;
+  box-sizing: border-box;
+}
+
+.admin-category-products {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.admin-category {
+  margin-top: 30px;
+}
+
+.admin-category:first-child {
+  margin-top: 0;
+}
+
+.admin-category-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.admin-category-head h2 {
+  margin: 0;
+}
+
+.admin-category-head span {
+  font-size: 13px;
+  color: #888;
+}
+
+.admin-empty {
+  color: #777;
+  margin: 0;
+}
+
+@media (max-width: 600px) {
+  .admin-category-products {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+</style>
+
+</head>
+
+<body>
+
+<header class="admin-header">
+  <div class="admin-brand">
+    <div class="admin-logo-icon" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M12 3L20 7V12C20 16.4 16.9 20 12 21C7.1 20 4 16.4 4 12V7L12 3Z"
+              stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>
+        <path d="M8.5 11.5L10.8 13.8L15.7 8.9"
+              stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+
+    <div>
+      <h1>YUNNITED CREW</h1>
+      <p>Painel de administração</p>
+    </div>
+  </div>
+</header>
+
+<main class="admin-container">
+
+  <section class="admin-card">
+    <h2>Adicionar produto</h2>
+
+    <form id="productForm">
+
+      <div class="form-grid">
+
+        <div class="field">
+          <label for="name">Nome do produto</label>
+          <input type="text" id="name" required>
+        </div>
+
+        <div class="field">
+          <label for="price">Preço (MT)</label>
+          <input type="number" id="price" step="0.01" min="0" required>
+        </div>
+
+        <div class="field">
+          <label for="category">Categoria</label>
+          <select id="category" required>
+            <option value="">Selecionar</option>
+            <option value="world-library">World Library</option>
+            <option value="moda">Moda</option>
+            <option value="acessorios">Acessórios</option>
+            <option value="nhonga">Nhonga</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="stock">Estoque</label>
+          <input type="number" id="stock" min="0" required>
+        </div>
+
+        <div class="field">
+          <label for="image">Imagem</label>
+          <div class="image-upload">
+      <label for="image" class="image-upload-button">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 16V4M12 4L7.5 8.5M12 4L16.5 8.5"
+                stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M5 13V19C5 20.1 5.9 21 7 21H17C18.1 21 19 20.1 19 19V13"
+                stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+        </svg>
+        <span>Escolher imagem</span>
+      </label>
+      <input type="file" id="image" accept="image/*" hidden>
+      <span id="imageName">Nenhuma imagem selecionada</span>
+
+      <div class="add-image-preview" id="addImagePreviewBox" hidden>
+        <div class="editor-imagem-preview__title">Enquadrar imagem</div>
+
+        <div class="editor-crop" id="addImageCrop" hidden>
+          <div class="editor-crop__viewport" id="addImageCropViewport">
+            <img id="addImageCropImage" src="" alt="Enquadramento da nova imagem">
+            <div class="editor-crop__frame"></div>
+          </div>
+
+          <div class="editor-crop__controls">
+            <label for="addImageCropZoom">Zoom</label>
+            <input type="range" id="addImageCropZoom" min="1" max="3" step="0.01" value="1">
+          </div>
+
+          <div class="editor-crop__hint">
+            Arraste a imagem para enquadrar. Use o zoom para aproximar.
+          </div>
+        </div>
+      </div>
+    </div>
+        </div>
+
+        <div class="field full">
+          <label for="description">Descrição</label>
+          <textarea id="description"></textarea>
+        </div>
+
+        <div class="field full">
+          <button class="button button-primary" type="submit">
+            Adicionar produto
+          </button>
+        </div>
+
+      </div>
+
+    </form>
+
+    <div id="message" class="message"></div>
+  </section>
+
+
+  <section class="admin-card">
+    <h2>Produtos cadastrados</h2>
+
+    <div id="productsGrid" class="products-grid">
+      <p>Carregando produtos...</p>
+    </div>
+  </section>
+
+</main>
+
+<script>
+
+const productForm = document.getElementById('productForm');
+const message = document.getElementById('message');
+const productsGrid = document.getElementById('productsGrid');
+
+
+async function carregarProdutos() {
+  try {
+    const response = await fetch('/api/products', {
+      credentials: 'include'
+    });
+
+    const data = await response.json();
+
+    if (!data.success) {
+      productsGrid.innerHTML = '<p>Erro ao carregar produtos.</p>';
+      return;
+    }
+
+    if (!data.products.length) {
+      productsGrid.innerHTML = '<p>Nenhum produto cadastrado.</p>';
+      return;
+    }
+
+    const categorias = [
+      {
+        id: 'world-library',
+        nome: 'World Library'
+      },
+      {
+        id: 'acessorios',
+        nome: 'Acessórios'
+      },
+      {
+        id: 'moda',
+        nome: 'Moda'
+      },
+      {
+        id: 'nhonga',
+        nome: 'Nhonga'
+      }
+    ];
+
+    function criarCardAdmin(product) {
+      const image = product.image
+        ? product.image
+        : 'data:image/svg+xml;charset=UTF-8,' +
+          encodeURIComponent(
+            '<svg xmlns="http://www.w3.org/2000/svg" width="600" height="400">' +
+            '<rect width="100%" height="100%" fill="#eee"/>' +
+            '<text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="#777">Sem imagem</text>' +
+            '</svg>'
+          );
+
+      return `
+        <article class="product-admin">
+          <img src="${image}" alt="${escapeHtml(product.name)}">
+
+          <div class="product-admin-content">
+            <h3>${escapeHtml(product.name)}</h3>
+
+            <div class="product-price">
+              ${Number(product.price).toFixed(2)} MT
+            </div>
+
+            <div class="product-meta">
+              Estoque: ${product.stock}
+            </div>
+
+            <div class="actions">
+              <button
+                class="button button-primary"
+                onclick="editarProduto('${product.id}')">
+                Editar
+              </button>
+
+              <button
+                class="button button-danger"
+                onclick="eliminarProduto('${product.id}')">
+                Eliminar
+              </button>
+            </div>
+          </div>
+        </article>
+      `;
+    }
+
+    productsGrid.innerHTML = categorias.map(categoria => {
+      const produtos = data.products.filter(
+        product => product.category === categoria.id
+      );
+
+      if (!produtos.length) {
+        return `
+          <section class="admin-category">
+            <div class="admin-category-head">
+              <h2>${categoria.nome}</h2>
+              <span>0 produtos</span>
+            </div>
+            <p class="admin-empty">Nenhum produto nesta categoria.</p>
+          </section>
+        `;
+      }
+
+      return `
+        <section class="admin-category">
+          <div class="admin-category-head">
+            <h2>${categoria.nome}</h2>
+            <span>${produtos.length} produto(s)</span>
+          </div>
+
+          <div class="admin-category-products">
+            ${produtos.map(criarCardAdmin).join('')}
+          </div>
+        </section>
+      `;
+    }).join('');
+
+  } catch (error) {
+    productsGrid.innerHTML =
+      '<p>Erro ao contactar o servidor.</p>';
+  }
+}
+
+productForm.addEventListener('submit', async (event) => {
+
+  event.preventDefault();
+
+  const formData = new FormData();
+
+  formData.append(
+    'name',
+    document.getElementById('name').value
+  );
+
+  formData.append(
+    'price',
+    document.getElementById('price').value
+  );
+
+  formData.append(
+    'category',
+    document.getElementById('category').value
+  );
+
+  formData.append(
+    'stock',
+    document.getElementById('stock').value
+  );
+
+  formData.append(
+    'description',
+    document.getElementById('description').value
+  );
+
+  const imageInput = document.getElementById('image');
+
+  if (imageInput.files.length > 0) {
+    let imagemParaEnviar = imageInput.files[0];
+
+    if (typeof window.gerarImagemNovaProduto === 'function') {
+      const imagemRecortada = await window.gerarImagemNovaProduto();
+
+      if (imagemRecortada) {
+        imagemParaEnviar = new File(
+          [imagemRecortada],
+          'produto-recortado.jpg',
+          { type: 'image/jpeg' }
+        );
+      }
+    }
+
+    formData.append('image', imagemParaEnviar);
+  }
+
+  try {
+
+    const response = await fetch('/api/admin/products', {
+      method: 'POST',
+      credentials: 'include',
+      body: formData
+    });
+
+    const data = await response.json();
+
+    if (data.success) {
+
+      message.textContent =
+        'Produto adicionado com sucesso.';
+
+      productForm.reset();
+
+      carregarProdutos();
+
+    } else {
+
+      message.textContent = data.message;
+
+    }
+
+  } catch (error) {
+
+    message.textContent =
+      'Erro ao contactar o servidor.';
+
+  }
+
+});
+
+
+async function eliminarProduto(id) {
+
+  const confirmar =
+    confirm('Tem certeza que deseja eliminar este produto?');
+
+  if (!confirmar) return;
+
+  try {
+
+    const response = await fetch(
+      `/api/admin/products/${id}`,
+      {
+        method: 'DELETE',
+        credentials: 'include'
+      }
+    );
+
+    const data = await response.json();
+
+    if (data.success) {
+
+      message.textContent =
+        'Produto eliminado com sucesso.';
+
+      carregarProdutos();
+
+    } else {
+
+      message.textContent = data.message;
+
+    }
+
+  } catch (error) {
+
+    message.textContent =
+      'Erro ao contactar o servidor.';
+
+  }
+
+}
+
+
+async function editarProduto(id) {
+  try {
+    const response = await fetch('/api/products', {
+      credentials: 'include'
+    });
+
+    const data = await response.json();
+
+    if (!data.success) {
+      message.textContent = 'Erro ao carregar o produto.';
+      return;
+    }
+
+    const produto = data.products.find(
+      p => String(p.id) === String(id)
+    );
+
+    if (!produto) {
+      message.textContent = 'Produto não encontrado.';
+      return;
+    }
+
+    abrirEditorProduto(produto);
+
+  } catch (error) {
+    console.error(error);
+    message.textContent = 'Erro ao contactar o servidor.';
+  }
+}
+
+function abrirEditorProduto(produto) {
+
+  const editorExistente = document.getElementById('editorProduto');
+
+  if (editorExistente) {
+    editorExistente.remove();
+  }
+
+  const editor = document.createElement('div');
+
+  editor.id = 'editorProduto';
+
+  editor.innerHTML = `
+    <div class="editor-overlay">
+
+      <div class="editor-box">
+
+        <div class="editor-header">
+          <h2>Editar produto</h2>
+          <button type="button" id="fecharEditor">×</button>
+        </div>
+
+        <form id="formEditarProduto">
+
+          <label>
+            Nome do produto
+            <input
+              type="text"
+              id="editarNome"
+              value="${escapeHtml(produto.name || '')}"
+              required
+            >
+          </label>
+
+          <label>
+            Preço (MT)
+            <input
+              type="number"
+              id="editarPreco"
+              value="${produto.price ?? 0}"
+              min="0"
+              step="0.01"
+              required
+            >
+          </label>
+
+          <label>
+            Categoria
+            <select id="editarCategoria">
+              <option value="world-library" ${produto.category === 'world-library' ? 'selected' : ''}>World Library</option>
+              <option value="acessorios" ${produto.category === 'acessorios' ? 'selected' : ''}>Acessórios</option>
+              <option value="moda" ${produto.category === 'moda' ? 'selected' : ''}>Moda</option>
+              <option value="nhonga" ${produto.category === 'nhonga' ? 'selected' : ''}>Nhonga</option>
+            </select>
+          </label>
+
+          <label>
+            Estoque
+            <input
+              type="number"
+              id="editarStock"
+              value="${produto.stock ?? 0}"
+              min="0"
+              step="1"
+              required
+            >
+          </label>
+
+          <label>
+            Descrição
+            <textarea
+              id="editarDescricao"
+              rows="4"
+            >${escapeHtml(produto.description || '')}</textarea>
+          </label>
+
+          <label>
+            Nova imagem
+            <input
+              type="file"
+              id="editarImagem"
+              accept="image/*"
+            >
+          </label>
+
+          <div class="editor-imagem-preview">
+            <div class="editor-imagem-preview__title">Imagem atual</div>
+            <img
+              id="editorImagemAtual"
+              src="${escapeHtml(produto.image || '')}"
+              alt="Imagem atual do produto"
+              class="editor-imagem-preview__img"
+              ${produto.image ? '' : 'hidden'}
+            >
+          </div>
+
+          <div class="editor-imagem-preview" id="editorNovaImagemBox" hidden>
+            <div class="editor-imagem-preview__title">Nova imagem</div>
+
+            <div class="editor-crop" id="editorCrop" hidden>
+              <div class="editor-crop__viewport" id="editorCropViewport">
+                <img
+                  id="editorCropImage"
+                  src=""
+                  alt="Recorte da nova imagem"
+                >
+                <div class="editor-crop__frame"></div>
+              </div>
+
+              <div class="editor-crop__controls">
+                <label for="editorCropZoom">Zoom</label>
+                <input
+                  type="range"
+                  id="editorCropZoom"
+                  min="1"
+                  max="3"
+                  step="0.01"
+                  value="1"
+                >
+              </div>
+
+              <div class="editor-crop__hint">
+                Arraste a imagem para enquadrar. Use o zoom para aproximar.
+              </div>
+            </div>
+
+            <img
+              id="editorNovaImagem"
+              src=""
+              alt="Pré-visualização da nova imagem"
+              class="editor-imagem-preview__img"
+            >
+          </div>
+
+          <div id="editorImagemNome">
+            Nenhuma imagem nova selecionada
+          </div>
+
+          <div class="editor-actions">
+
+            <button
+              type="button"
+              class="button button-secondary"
+              id="cancelarEditor">
+              Cancelar
+            </button>
+
+            <button
+              type="submit"
+              class="button button-primary">
+              Salvar alterações
+            </button>
+
+          </div>
+
+          <div id="editorMensagem"></div>
+
+        </form>
+
+      </div>
+
+    </div>
+  `;
+
+  document.body.appendChild(editor);
+
+  const fechar = () => {
+    editor.remove();
+  };
+
+  document
+    .getElementById('fecharEditor')
+    .addEventListener('click', fechar);
+
+  document
+    .getElementById('cancelarEditor')
+    .addEventListener('click', fechar);
+
+
+  const crop = {
+    scale: 1,
+    x: 0,
+    y: 0,
+    dragging: false,
+    startX: 0,
+    startY: 0,
+    baseWidth: 0,
+    baseHeight: 0
+  };
+
+  const cropViewport = document.getElementById('editorCropViewport');
+  const cropImage = document.getElementById('editorCropImage');
+  const cropZoom = document.getElementById('editorCropZoom');
+  const cropBox = document.getElementById('editorCrop');
+
+  function limitarPosicaoCrop() {
+    const vw = cropViewport.clientWidth;
+    const vh = cropViewport.clientHeight;
+
+    const imagemWidth = crop.baseWidth * crop.scale;
+    const imagemHeight = crop.baseHeight * crop.scale;
+
+    const limiteX = Math.max(0, (imagemWidth - vw) / 2);
+    const limiteY = Math.max(0, (imagemHeight - vh) / 2);
+
+    crop.x = Math.max(-limiteX, Math.min(limiteX, crop.x));
+    crop.y = Math.max(-limiteY, Math.min(limiteY, crop.y));
+  }
+
+  function atualizarCrop() {
+    if (!cropImage.naturalWidth || !cropImage.naturalHeight) return;
+
+    const vw = cropViewport.clientWidth;
+    const vh = cropViewport.clientHeight;
+
+    const proporcao = Math.max(
+      vw / cropImage.naturalWidth,
+      vh / cropImage.naturalHeight
+    );
+
+    crop.baseWidth = cropImage.naturalWidth * proporcao;
+    crop.baseHeight = cropImage.naturalHeight * proporcao;
+
+    limitarPosicaoCrop();
+
+    cropImage.style.width = `${crop.baseWidth * crop.scale}px`;
+    cropImage.style.height = `${crop.baseHeight * crop.scale}px`;
+    cropImage.style.left = `calc(50% + ${crop.x}px)`;
+    cropImage.style.top = `calc(50% + ${crop.y}px)`;
+  }
+
+  cropZoom.addEventListener('input', () => {
+    crop.scale = Number(cropZoom.value);
+    atualizarCrop();
+  });
+
+  cropImage.addEventListener('load', () => {
+    crop.scale = 1;
+    crop.x = 0;
+    crop.y = 0;
+    cropZoom.value = '1';
+    cropBox.hidden = false;
+    atualizarCrop();
+  });
+
+  cropViewport.addEventListener('pointerdown', (event) => {
+    if (cropBox.hidden) return;
+
+    crop.dragging = true;
+    crop.startX = event.clientX - crop.x;
+    crop.startY = event.clientY - crop.y;
+
+    cropViewport.setPointerCapture(event.pointerId);
+  });
+
+  cropViewport.addEventListener('pointermove', (event) => {
+    if (!crop.dragging) return;
+
+    crop.x = event.clientX - crop.startX;
+    crop.y = event.clientY - crop.startY;
+
+    limitarPosicaoCrop();
+    atualizarCrop();
+  });
+
+  cropViewport.addEventListener('pointerup', (event) => {
+    crop.dragging = false;
+
+    try {
+      cropViewport.releasePointerCapture(event.pointerId);
+    } catch (_) {}
+  });
+
+  cropViewport.addEventListener('pointercancel', () => {
+    crop.dragging = false;
+  });
+
+  const imagemInput = document.getElementById('editarImagem');
+
+  imagemInput.addEventListener('change', () => {
+
+    const nome = imagemInput.files.length
+      ? imagemInput.files[0].name
+      : 'Nenhuma imagem nova selecionada';
+
+    document.getElementById('editorImagemNome').textContent = nome;
+
+    const novaImagemBox = document.getElementById('editorNovaImagemBox');
+    const novaImagem = document.getElementById('editorNovaImagem');
+
+    if (imagemInput.files.length) {
+      const arquivo = imagemInput.files[0];
+      const imagemUrl = URL.createObjectURL(arquivo);
+
+      novaImagem.src = imagemUrl;
+      cropImage.src = imagemUrl;
+      novaImagemBox.hidden = false;
+    } else {
+      novaImagem.src = '';
+      novaImagemBox.hidden = true;
+    }
+  });
+
+
+  async function gerarImagemRecortada() {
+    if (!cropImage.naturalWidth || cropBox.hidden) {
+      return null;
+    }
+
+    const viewportWidth = cropViewport.clientWidth;
+    const viewportHeight = cropViewport.clientHeight;
+
+    const imagemWidth = crop.baseWidth * crop.scale;
+    const imagemHeight = crop.baseHeight * crop.scale;
+
+    const imagemLeft = (viewportWidth - imagemWidth) / 2 + crop.x;
+    const imagemTop = (viewportHeight - imagemHeight) / 2 + crop.y;
+
+    const canvas = document.createElement('canvas');
+    const tamanho = 800;
+
+    canvas.width = tamanho;
+    canvas.height = tamanho;
+
+    const ctx = canvas.getContext('2d');
+
+    const escalaX = cropImage.naturalWidth / imagemWidth;
+    const escalaY = cropImage.naturalHeight / imagemHeight;
+
+    const origemX = Math.max(0, -imagemLeft) * escalaX;
+    const origemY = Math.max(0, -imagemTop) * escalaY;
+
+    const origemW = Math.min(
+      viewportWidth,
+      imagemWidth
+    ) * escalaX;
+
+    const origemH = Math.min(
+      viewportHeight,
+      imagemHeight
+    ) * escalaY;
+
+    ctx.drawImage(
+      cropImage,
+      origemX,
+      origemY,
+      origemW,
+      origemH,
+      0,
+      0,
+      tamanho,
+      tamanho
+    );
+
+    return new Promise((resolve) => {
+      canvas.toBlob(
+        (blob) => resolve(blob),
+        'image/jpeg',
+        0.92
+      );
+    });
+  }
+
+  document
+    .getElementById('formEditarProduto')
+    .addEventListener('submit', async (event) => {
+
+      event.preventDefault();
+
+      const nome = document
+        .getElementById('editarNome')
+        .value
+        .trim();
+
+      const preco = Number(
+        document.getElementById('editarPreco').value
+      );
+
+      const categoria = document
+        .getElementById('editarCategoria')
+        .value;
+
+      const stock = Number(
+        document.getElementById('editarStock').value
+      );
+
+      const descricao = document
+        .getElementById('editarDescricao')
+        .value
+        .trim();
+
+      const imagem = document
+        .getElementById('editarImagem')
+        .files[0];
+
+      const editorMensagem =
+        document.getElementById('editorMensagem');
+
+      if (!nome) {
+        editorMensagem.textContent =
+          'Digite o nome do produto.';
+        return;
+      }
+
+      if (!Number.isFinite(preco) || preco < 0) {
+        editorMensagem.textContent =
+          'Preço inválido.';
+        return;
+      }
+
+      if (!Number.isInteger(stock) || stock < 0) {
+        editorMensagem.textContent =
+          'Estoque inválido.';
+        return;
+      }
+
+      editorMensagem.textContent =
+        'A guardar alterações...';
+
+      const formData = new FormData();
+
+      formData.append('name', nome);
+      formData.append('price', preco);
+      formData.append('category', categoria);
+      formData.append('stock', stock);
+      formData.append('description', descricao);
+
+      if (imagem) {
+        const imagemRecortada = await gerarImagemRecortada();
+
+        if (imagemRecortada) {
+          formData.append(
+            'image',
+            imagemRecortada,
+            'produto-recortado.jpg'
+          );
+        } else {
+          formData.append('image', imagem);
+        }
+      }
+
+      try {
+
+        const atualizar = await fetch(
+          `/api/admin/products/${produto.id}`,
+          {
+            method: 'PUT',
+            credentials: 'include',
+            body: formData
+          }
+        );
+
+        const resultado = await atualizar.json();
+
+        if (resultado.success) {
+
+          message.textContent =
+            'Produto atualizado com sucesso.';
+
+          fechar();
+
+          await carregarProdutos();
+
+        } else {
+
+          editorMensagem.textContent =
+            resultado.message ||
+            'Não foi possível atualizar o produto.';
+
+        }
+
+      } catch (error) {
+
+        console.error(error);
+
+        editorMensagem.textContent =
+          'Erro ao contactar o servidor.';
+      }
+
+    });
+}
+
+
+
+
+function escapeHtml(value) {
+
+  return String(value)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+
+}
+
+
+carregarProdutos();
+
+</script>
+
+</body>
+</html>
+<style>
+.editor-imagem-preview {
+  margin: 14px 0;
+}
+
+.editor-imagem-preview[hidden] {
+  display: none;
+}
+
+.editor-imagem-preview__title {
+  margin-bottom: 7px;
+  font-size: 13px;
+  font-weight: 700;
+  opacity: .75;
+}
+
+.editor-imagem-preview__img {
+  display: block;
+  width: 100%;
+  max-height: 260px;
+  object-fit: contain;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,.15);
+  background: rgba(255,255,255,.04);
+}
+</style>
+
+<style>
+.editor-crop {
+  margin-top: 12px;
+}
+
+.editor-crop__viewport {
+  position: relative;
+  width: 100%;
+  max-width: 320px;
+  aspect-ratio: 1 / 1;
+  margin: 0 auto;
+  overflow: hidden;
+  border-radius: 14px;
+  background: #111;
+  touch-action: none;
+  cursor: grab;
+}
+
+.editor-crop__viewport:active {
+  cursor: grabbing;
+}
+
+.editor-crop__viewport img {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  max-width: none;
+  user-select: none;
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+}
+
+.editor-crop__frame {
+  position: absolute;
+  inset: 0;
+  border: 2px solid rgba(255,255,255,.9);
+  box-shadow: 0 0 0 9999px rgba(0,0,0,.28);
+  pointer-events: none;
+}
+
+.editor-crop__controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.editor-crop__controls label {
+  font-size: 13px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.editor-crop__controls input[type="range"] {
+  flex: 1;
+}
+
+.editor-crop__hint {
+  margin-top: 8px;
+  font-size: 12px;
+  line-height: 1.4;
+  opacity: .7;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const imageInput = document.getElementById('image');
+  const previewBox = document.getElementById('addImagePreviewBox');
+  const cropBox = document.getElementById('addImageCrop');
+  const viewport = document.getElementById('addImageCropViewport');
+  const cropImage = document.getElementById('addImageCropImage');
+  const zoom = document.getElementById('addImageCropZoom');
+
+  if (!imageInput || !previewBox || !cropBox || !viewport || !cropImage || !zoom) {
+    console.warn('Editor de recorte: elementos não encontrados.');
+    return;
+  }
+
+  const state = {
+    scale: 1,
+    x: 0,
+    y: 0,
+    baseWidth: 0,
+    baseHeight: 0,
+    dragging: false,
+    startX: 0,
+    startY: 0
+  };
+
+  function limitar() {
+    const vw = viewport.clientWidth;
+    const vh = viewport.clientHeight;
+    const w = state.baseWidth * state.scale;
+    const h = state.baseHeight * state.scale;
+
+    const maxX = Math.max(0, (w - vw) / 2);
+    const maxY = Math.max(0, (h - vh) / 2);
+
+    state.x = Math.max(-maxX, Math.min(maxX, state.x));
+    state.y = Math.max(-maxY, Math.min(maxY, state.y));
+  }
+
+  function atualizar() {
+    if (!cropImage.naturalWidth) return;
+
+    const vw = viewport.clientWidth;
+    const vh = viewport.clientHeight;
+
+    const proporcao = Math.max(
+      vw / cropImage.naturalWidth,
+      vh / cropImage.naturalHeight
+    );
+
+    state.baseWidth = cropImage.naturalWidth * proporcao;
+    state.baseHeight = cropImage.naturalHeight * proporcao;
+
+    limitar();
+
+    cropImage.style.width = `${state.baseWidth * state.scale}px`;
+    cropImage.style.height = `${state.baseHeight * state.scale}px`;
+    cropImage.style.left = `calc(50% + ${state.x}px)`;
+    cropImage.style.top = `calc(50% + ${state.y}px)`;
+  }
+
+  imageInput.addEventListener('change', () => {
+    if (!imageInput.files.length) {
+      previewBox.hidden = true;
+      cropBox.hidden = true;
+      return;
+    }
+
+    const arquivo = imageInput.files[0];
+    document.getElementById('imageName').textContent = arquivo.name;
+
+    previewBox.hidden = false;
+    cropImage.src = URL.createObjectURL(arquivo);
+  });
+
+  cropImage.addEventListener('load', () => {
+    state.scale = 1;
+    state.x = 0;
+    state.y = 0;
+    zoom.value = '1';
+    cropBox.hidden = false;
+    atualizar();
+  });
+
+  zoom.addEventListener('input', () => {
+    state.scale = Number(zoom.value);
+    atualizar();
+  });
+
+  window.gerarImagemNovaProduto = async function() {
+    if (!cropImage.naturalWidth || cropBox.hidden) return null;
+
+    const vw = viewport.clientWidth;
+    const vh = viewport.clientHeight;
+
+    const imagemWidth = state.baseWidth * state.scale;
+    const imagemHeight = state.baseHeight * state.scale;
+
+    const imagemLeft =
+      (vw - imagemWidth) / 2 + state.x;
+
+    const imagemTop =
+      (vh - imagemHeight) / 2 + state.y;
+
+    const canvas = document.createElement('canvas');
+    const tamanho = 800;
+
+    canvas.width = tamanho;
+    canvas.height = tamanho;
+
+    const ctx = canvas.getContext('2d');
+
+    const escalaX =
+      cropImage.naturalWidth / imagemWidth;
+
+    const escalaY =
+      cropImage.naturalHeight / imagemHeight;
+
+    const origemX = Math.max(0, -imagemLeft) * escalaX;
+    const origemY = Math.max(0, -imagemTop) * escalaY;
+
+    const origemW = vw * escalaX;
+    const origemH = vh * escalaY;
+
+    ctx.drawImage(
+      cropImage,
+      origemX,
+      origemY,
+      origemW,
+      origemH,
+      0,
+      0,
+      tamanho,
+      tamanho
+    );
+
+    return new Promise(resolve => {
+      canvas.toBlob(
+        blob => resolve(blob),
+        'image/jpeg',
+        0.92
+      );
+    });
+  };
+
+  viewport.addEventListener('pointerdown', (e) => {
+    state.dragging = true;
+    state.startX = e.clientX - state.x;
+    state.startY = e.clientY - state.y;
+    viewport.setPointerCapture(e.pointerId);
+  });
+
+  viewport.addEventListener('pointermove', (e) => {
+    if (!state.dragging) return;
+
+    state.x = e.clientX - state.startX;
+    state.y = e.clientY - state.startY;
+
+    atualizar();
+  });
+
+  viewport.addEventListener('pointerup', (e) => {
+    state.dragging = false;
+
+    try {
+      viewport.releasePointerCapture(e.pointerId);
+    } catch (_) {}
+  });
+
+  viewport.addEventListener('pointercancel', () => {
+    state.dragging = false;
+  });
+});
+</script>
