@@ -1,0 +1,3 @@
+/api/* https://yunnited-crew-backend.onrender.com/api/:splat 200
+/admin/* https://yunnited-crew-backend.onrender.com/admin/:splat 200
+/uploads/* https://yunnited-crew-backend.onrender.com/uploads/:splat 200
