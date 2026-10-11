@@ -8,7 +8,7 @@ const session = require('express-session');
 const multer = require('multer');
 
 const app = express();
-app.use(cors({ origin: 'https://johnkeyswick65-stack.github.io' }));
+app.use(cors({ origin: ['https://johnkeyswick65-stack.github.io', 'https://yunnited-crew.pages.dev'] }));
 
 const PORT = process.env.PORT || 3000;
 
