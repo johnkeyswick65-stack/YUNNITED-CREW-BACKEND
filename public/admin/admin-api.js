@@ -77,6 +77,26 @@
     },
     logout() { clearSession(); window.location.href = '/admin/login.html'; },
 
+    // PERFIL
+    async getMe() {
+      const data = await request('/api/me');
+      return data.user;
+    },
+    async getHistory() {
+      const data = await request('/api/me/history');
+      return data.items || [];
+    },
+    async logoutRemote() {
+      try { await request('/api/logout', { method: 'POST' }); } catch {}
+      clearSession();
+      window.location.href = '/admin/login.html';
+    },
+    async logoutAll() {
+      await request('/api/logout-all', { method: 'POST' });
+      clearSession();
+      window.location.href = '/admin/login.html';
+    },
+
     // PRODUTOS
     async listProducts() {
       const data = await request('/api/products');

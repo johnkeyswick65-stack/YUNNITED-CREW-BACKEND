@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Perfil | YUNNITED CREW</title>
+<link rel="stylesheet" href="/admin/admin.css">
+<style>
+  body { background: #0b0b0b; color: #fff; font-family: Arial, sans-serif; margin: 0; padding: 20px; }
+  .wrap { max-width: 800px; margin: 0 auto; }
+  h1 { font-size: 22px; margin: 0 0 4px; }
+  .sub { color: #888; font-size: 13px; margin: 0 0 20px; }
+  .nav { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; }
+  .nav a { color: #ccc; text-decoration: none; padding: 8px 14px; border: 1px solid #292929; border-radius: 8px; font-size: 13px; }
+  .nav a.active { background: #fff; color: #000; border-color: #fff; }
+  .section { background: #151515; border: 1px solid #292929; border-radius: 14px; padding: 20px; margin-bottom: 20px; }
+  .section h2 { font-size: 15px; margin: 0 0 16px; }
+  .kv { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #1f1f1f; font-size: 14px; }
+  .kv:last-child { border-bottom: 0; }
+  .kv b { color: #fff; }
+  .kv .muted { color: #888; font-size: 12px; }
+  .row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 16px; }
+  .btn { padding: 10px 16px; border-radius: 8px; border: 0; font-size: 14px; font-weight: 600; cursor: pointer; }
+  .btn-primary { background: #fff; color: #000; }
+  .btn-danger { background: #ff3b30; color: #fff; }
+  .btn-ghost { background: transparent; border: 1px solid #333; color: #ccc; }
+  .hist { display: flex; flex-direction: column; gap: 8px; }
+  .hist-item { padding: 12px; background: #0d0d0d; border: 1px solid #222; border-radius: 8px; font-size: 13px; }
+  .hist-item.fail { border-color: #4a1a1a; }
+  .hist-head { display: flex; justify-content: space-between; margin-bottom: 4px; }
+  .hist-ok { color: #1db954; font-weight: 700; font-size: 11px; }
+  .hist-fail { color: #ff3b30; font-weight: 700; font-size: 11px; }
+  .hist-meta { color: #888; font-size: 12px; }
+  .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); padding: 12px 20px; border-radius: 10px; font-size: 14px; z-index: 999; }
+  .toast.ok { background: #1db954; color: #fff; }
+  .toast.err { background: #ff3b30; color: #fff; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>YUNNITED CREW</h1>
+  <p class="sub">Perfil da conta</p>
+
+  <nav class="nav">
+    <a href="/admin/admin.html">Produtos</a>
+    <a href="/admin/categorias.html">Categorias</a>
+    <a href="/admin/dashboard.html">Dashboard</a>
+    <a href="/admin/armazenamento.html">Armazenamento</a>
+    <a href="/admin/perfil.html" class="active">Perfil</a>
+  </nav>
+
+  <section class="section">
+    <h2>Conta</h2>
+    <div id="conta"><p style="color:#888">A carregar...</p></div>
+  </section>
+
+  <section class="section">
+    <h2>Últimos acessos (5)</h2>
+    <div id="hist" class="hist"><p style="color:#888">A carregar...</p></div>
+  </section>
+
+  <section class="section">
+    <h2>Sessões</h2>
+    <div style="font-size:13px;color:#888;margin-bottom:12px">
+      Sessão única: ao fazer login noutro dispositivo, esta é encerrada automaticamente.
+    </div>
+    <div class="row">
+      <button class="btn btn-ghost" id="logoutBtn">Terminar esta sessão</button>
+      <button class="btn btn-danger" id="logoutAllBtn">Encerrar todas as sessões</button>
+    </div>
+  </section>
+</div>
+
+<script src="/admin/admin-api.js"></script>
+<script>
+const { api, requireLogin } = window.YCAdmin;
+if (!requireLogin()) throw new Error('redirect');
+
+function toast(text, ok = true) {
+  const t = document.createElement('div');
+  t.className = 'toast ' + (ok ? 'ok' : 'err');
+  t.textContent = text;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 3000);
+}
+
+function escapeHtml(s) {
+  return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+function fmtDate(iso) {
+  const d = new Date(iso);
+  const pad = (n) => String(n).padStart(2, '0');
+  return `${pad(d.getDate())}/${pad(d.getMonth()+1)}/${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
+function describeUA(ua) {
+  if (!ua) return 'Desconhecido';
+  if (/curl/i.test(ua)) return 'Curl';
+  if (/Android/i.test(ua)) {
+    if (/Chrome/i.test(ua)) return 'Chrome (Android)';
+    if (/Firefox/i.test(ua)) return 'Firefox (Android)';
+    return 'Android';
+  }
+  if (/iPhone|iPad/i.test(ua)) return 'iOS';
+  if (/Chrome/i.test(ua)) return 'Chrome (Desktop)';
+  if (/Firefox/i.test(ua)) return 'Firefox (Desktop)';
+  if (/Safari/i.test(ua)) return 'Safari';
+  return ua.slice(0, 40);
+}
+
+async function loadPerfil() {
+  try {
+    const [me, hist] = await Promise.all([api.getMe(), api.getHistory()]);
+
+    document.getElementById('conta').innerHTML = `
+      <div class="kv"><span>Utilizador</span><b>${escapeHtml(me.username)}</b></div>
+      <div class="kv"><span>Perfil</span><b>${escapeHtml(me.role)}</b></div>
+      <div class="kv"><span>ID</span><span class="muted">${escapeHtml(me.id)}</span></div>
+    `;
+
+    if (!hist.length) {
+      document.getElementById('hist').innerHTML = '<p style="color:#888">Sem histórico.</p>';
+    } else {
+      document.getElementById('hist').innerHTML = hist.map(h => `
+        <div class="hist-item ${h.success ? '' : 'fail'}">
+          <div class="hist-head">
+            <span class="${h.success ? 'hist-ok' : 'hist-fail'}">${h.success ? 'SUCESSO' : 'FALHA'}</span>
+            <span class="hist-meta">${fmtDate(h.createdAt)}</span>
+          </div>
+          <div class="hist-meta">${escapeHtml(h.ip || 'IP desconhecido')} · ${escapeHtml(describeUA(h.userAgent))}</div>
+        </div>
+      `).join('');
+    }
+  } catch (e) {
+    document.getElementById('conta').innerHTML = '<p style="color:#ff3b30">' + escapeHtml(e.message) + '</p>';
+  }
+}
+
+document.getElementById('logoutBtn').addEventListener('click', async () => {
+  await api.logoutRemote();
+});
+
+document.getElementById('logoutAllBtn').addEventListener('click', async () => {
+  if (!confirm('Encerrar todas as sessões ativas?\n\nSerás redirecionado para o login.')) return;
+  try {
+    await api.logoutAll();
+  } catch (e) {
+    toast(e.message, false);
+  }
+});
+
+loadPerfil();
+</script>
+</body>
+</html>
