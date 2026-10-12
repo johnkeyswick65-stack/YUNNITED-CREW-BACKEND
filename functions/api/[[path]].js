@@ -1,18 +1,6 @@
 export async function onRequest(context) {
   const request = context.request;
   const incomingUrl = new URL(request.url);
-
-  // Endpoint de debug — devolve os headers relevantes sem passar ao Render
-  if (incomingUrl.pathname === '/api/debug-headers') {
-    return Response.json({
-      'cf-connecting-ip': request.headers.get('cf-connecting-ip'),
-      'x-forwarded-for': request.headers.get('x-forwarded-for'),
-      'x-real-ip': request.headers.get('x-real-ip'),
-      'true-client-ip': request.headers.get('true-client-ip'),
-      'x-forwarded-proto': request.headers.get('x-forwarded-proto'),
-    });
-  }
-
   const targetUrl =
     'https://yunnited-crew-backend.onrender.com' +
     incomingUrl.pathname +

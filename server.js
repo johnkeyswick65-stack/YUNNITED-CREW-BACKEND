@@ -48,20 +48,6 @@ app.get('/api/status', (req, res) => {
   });
 });
 
-app.get('/api/_debug-headers', (req, res) => {
-  res.json({
-    ip: req.ip,
-    ips: req.ips,
-    headers: {
-      'x-client-ip': req.headers['x-client-ip'],
-      'x-real-ip': req.headers['x-real-ip'],
-      'cf-connecting-ip': req.headers['cf-connecting-ip'],
-      'x-forwarded-for': req.headers['x-forwarded-for'],
-      'x-forwarded-host': req.headers['x-forwarded-host'],
-    },
-  });
-});
-
 app.use('/api', authRoutes);
 app.use('/api/products', productRoutes);
 
