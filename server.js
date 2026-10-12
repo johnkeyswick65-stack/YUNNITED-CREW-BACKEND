@@ -12,6 +12,8 @@ const productRoutes = require('./src/routes/products');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+app.set('trust proxy', 1); // Render / Cloudflare / qualquer proxy reverso
+
 app.use(helmet({
   crossOriginResourcePolicy: false,
   contentSecurityPolicy: process.env.NODE_ENV !== 'production' ? false : undefined,
@@ -26,10 +28,11 @@ app.use(morgan('tiny'));
 
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 20,
+  max: 5,
+  skipSuccessfulRequests: true,
   standardHeaders: true,
   legacyHeaders: false,
-  message: { success: false, message: 'Demasiadas tentativas. Tente mais tarde.' },
+  message: { success: false, message: 'Demasiadas tentativas. Tente novamente em 15 minutos.' },
 });
 
 app.use('/api/login', authLimiter);
