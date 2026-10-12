@@ -312,6 +312,7 @@
 
 </main>
 
+<script src="/admin/admin-api.js"></script>
 <script>
 
 const productForm = document.getElementById('productForm');
@@ -319,42 +320,17 @@ const message = document.getElementById('message');
 const productsGrid = document.getElementById('productsGrid');
 
 
+if (window.YCAdmin && !window.YCAdmin.requireLogin()) { throw new Error('redirect'); }
 async function carregarProdutos() {
   try {
-    const response = await fetch('/api/products', {
-      credentials: 'include'
-    });
+    const items = await window.YCAdmin.api.listProducts();
 
-    const data = await response.json();
-
-    if (!data.success) {
-      productsGrid.innerHTML = '<p>Erro ao carregar produtos.</p>';
-      return;
-    }
-
-    if (!data.products.length) {
+    if (!items.length) {
       productsGrid.innerHTML = '<p>Nenhum produto cadastrado.</p>';
       return;
     }
 
-    const categorias = [
-      {
-        id: 'world-library',
-        nome: 'World Library'
-      },
-      {
-        id: 'acessorios',
-        nome: 'Acessórios'
-      },
-      {
-        id: 'moda',
-        nome: 'Moda'
-      },
-      {
-        id: 'nhonga',
-        nome: 'Nhonga'
-      }
-    ];
+    const categorias = window.YCAdmin.CATEGORIES;
 
     function criarCardAdmin(product) {
       const image = product.image
@@ -370,227 +346,95 @@ async function carregarProdutos() {
       return `
         <article class="product-admin">
           <img src="${image}" alt="${escapeHtml(product.name)}">
-
           <div class="product-admin-content">
             <h3>${escapeHtml(product.name)}</h3>
-
-            <div class="product-price">
-              ${Number(product.price).toFixed(2)} MT
-            </div>
-
-            <div class="product-meta">
-              Estoque: ${product.stock}
-            </div>
-
+            <div class="product-price">${Number(product.price).toFixed(2)} MT</div>
+            <div class="product-meta">Estoque: ${product.stock}</div>
             <div class="actions">
-              <button
-                class="button button-primary"
-                onclick="editarProduto('${product.id}')">
-                Editar
-              </button>
-
-              <button
-                class="button button-danger"
-                onclick="eliminarProduto('${product.id}')">
-                Eliminar
-              </button>
+              <button class="button button-primary" onclick="editarProduto('${product.id}')">Editar</button>
+              <button class="button button-danger" onclick="eliminarProduto('${product.id}')">Eliminar</button>
             </div>
           </div>
-        </article>
-      `;
+        </article>`;
     }
 
     productsGrid.innerHTML = categorias.map(categoria => {
-      const produtos = data.products.filter(
-        product => product.category === categoria.id
-      );
-
+      const produtos = items.filter(p => p.category === categoria.id);
       if (!produtos.length) {
-        return `
-          <section class="admin-category">
-            <div class="admin-category-head">
-              <h2>${categoria.nome}</h2>
-              <span>0 produtos</span>
-            </div>
-            <p class="admin-empty">Nenhum produto nesta categoria.</p>
-          </section>
-        `;
+        return `<section class="admin-category">
+          <div class="admin-category-head"><h2>${categoria.nome}</h2><span>0 produtos</span></div>
+          <p class="admin-empty">Nenhum produto nesta categoria.</p>
+        </section>`;
       }
-
-      return `
-        <section class="admin-category">
-          <div class="admin-category-head">
-            <h2>${categoria.nome}</h2>
-            <span>${produtos.length} produto(s)</span>
-          </div>
-
-          <div class="admin-category-products">
-            ${produtos.map(criarCardAdmin).join('')}
-          </div>
-        </section>
-      `;
+      return `<section class="admin-category">
+        <div class="admin-category-head"><h2>${categoria.nome}</h2><span>${produtos.length} produto(s)</span></div>
+        <div class="admin-category-products">${produtos.map(criarCardAdmin).join('')}</div>
+      </section>`;
     }).join('');
 
   } catch (error) {
-    productsGrid.innerHTML =
-      '<p>Erro ao contactar o servidor.</p>';
+    productsGrid.innerHTML = '<p>Erro ao contactar o servidor.</p>';
   }
 }
 
 productForm.addEventListener('submit', async (event) => {
-
   event.preventDefault();
 
-  const formData = new FormData();
-
-  formData.append(
-    'name',
-    document.getElementById('name').value
-  );
-
-  formData.append(
-    'price',
-    document.getElementById('price').value
-  );
-
-  formData.append(
-    'category',
-    document.getElementById('category').value
-  );
-
-  formData.append(
-    'stock',
-    document.getElementById('stock').value
-  );
-
-  formData.append(
-    'description',
-    document.getElementById('description').value
-  );
-
+  const name = document.getElementById('name').value.trim();
+  const price = Number(document.getElementById('price').value);
+  const category = document.getElementById('category').value;
+  const stock = Number(document.getElementById('stock').value);
+  const description = document.getElementById('description').value.trim();
   const imageInput = document.getElementById('image');
 
-  if (imageInput.files.length > 0) {
-    let imagemParaEnviar = imageInput.files[0];
-
-    if (typeof window.gerarImagemNovaProduto === 'function') {
-      const imagemRecortada = await window.gerarImagemNovaProduto();
-
-      if (imagemRecortada) {
-        imagemParaEnviar = new File(
-          [imagemRecortada],
-          'produto-recortado.jpg',
-          { type: 'image/jpeg' }
-        );
+  try {
+    let imageUrl = '';
+    if (imageInput.files.length > 0) {
+      let file = imageInput.files[0];
+      if (typeof window.gerarImagemNovaProduto === 'function') {
+        const rec = await window.gerarImagemNovaProduto();
+        if (rec) file = new File([rec], 'produto-recortado.jpg', { type: 'image/jpeg' });
       }
+      message.textContent = 'A subir imagem...';
+      imageUrl = await window.YCAdmin.api.uploadImage(file);
     }
 
-    formData.append('image', imagemParaEnviar);
-  }
-
-  try {
-
-    const response = await fetch('/api/admin/products', {
-      method: 'POST',
-      credentials: 'include',
-      body: formData
+    message.textContent = 'A guardar...';
+    await window.YCAdmin.api.createProduct({
+      name, price, category, stock, description, imageUrl
     });
 
-    const data = await response.json();
-
-    if (data.success) {
-
-      message.textContent =
-        'Produto adicionado com sucesso.';
-
-      productForm.reset();
-
-      carregarProdutos();
-
-    } else {
-
-      message.textContent = data.message;
-
-    }
-
+    message.textContent = 'Produto adicionado com sucesso.';
+    productForm.reset();
+    carregarProdutos();
   } catch (error) {
-
-    message.textContent =
-      'Erro ao contactar o servidor.';
-
+    message.textContent = error.message;
   }
-
 });
 
 
 async function eliminarProduto(id) {
-
-  const confirmar =
-    confirm('Tem certeza que deseja eliminar este produto?');
-
-  if (!confirmar) return;
-
+  if (!confirm('Tem certeza que deseja eliminar este produto?')) return;
   try {
-
-    const response = await fetch(
-      `/api/admin/products/${id}`,
-      {
-        method: 'DELETE',
-        credentials: 'include'
-      }
-    );
-
-    const data = await response.json();
-
-    if (data.success) {
-
-      message.textContent =
-        'Produto eliminado com sucesso.';
-
-      carregarProdutos();
-
-    } else {
-
-      message.textContent = data.message;
-
-    }
-
+    await window.YCAdmin.api.deleteProduct(id);
+    message.textContent = 'Produto eliminado com sucesso.';
+    carregarProdutos();
   } catch (error) {
-
-    message.textContent =
-      'Erro ao contactar o servidor.';
-
+    message.textContent = error.message;
   }
-
 }
 
 
 async function editarProduto(id) {
   try {
-    const response = await fetch('/api/products', {
-      credentials: 'include'
-    });
-
-    const data = await response.json();
-
-    if (!data.success) {
-      message.textContent = 'Erro ao carregar o produto.';
-      return;
-    }
-
-    const produto = data.products.find(
-      p => String(p.id) === String(id)
-    );
-
+    const items = await window.YCAdmin.api.listProducts();
+    const produto = items.find(p => String(p.id) === String(id));
     if (!produto) {
       message.textContent = 'Produto não encontrado.';
       return;
     }
-
     abrirEditorProduto(produto);
-
   } catch (error) {
-    console.error(error);
     message.textContent = 'Erro ao contactar o servidor.';
   }
 }
@@ -1014,65 +858,27 @@ function abrirEditorProduto(produto) {
       editorMensagem.textContent =
         'A guardar alterações...';
 
-      const formData = new FormData();
-
-      formData.append('name', nome);
-      formData.append('price', preco);
-      formData.append('category', categoria);
-      formData.append('stock', stock);
-      formData.append('description', descricao);
-
+      let imageUrl;
       if (imagem) {
-        const imagemRecortada = await gerarImagemRecortada();
-
-        if (imagemRecortada) {
-          formData.append(
-            'image',
-            imagemRecortada,
-            'produto-recortado.jpg'
-          );
-        } else {
-          formData.append('image', imagem);
-        }
+        editorMensagem.textContent = 'A subir imagem...';
+        let file = imagem;
+        const rec = await gerarImagemRecortada();
+        if (rec) file = new File([rec], 'produto-recortado.jpg', { type: 'image/jpeg' });
+        imageUrl = await window.YCAdmin.api.uploadImage(file);
       }
+
+      editorMensagem.textContent = 'A guardar alterações...';
+
+      const patch = { name: nome, price: preco, category: categoria, stock, description: descricao };
+      if (imageUrl) patch.imageUrl = imageUrl;
 
       try {
-
-        const atualizar = await fetch(
-          `/api/admin/products/${produto.id}`,
-          {
-            method: 'PUT',
-            credentials: 'include',
-            body: formData
-          }
-        );
-
-        const resultado = await atualizar.json();
-
-        if (resultado.success) {
-
-          message.textContent =
-            'Produto atualizado com sucesso.';
-
-          fechar();
-
-          await carregarProdutos();
-
-        } else {
-
-          editorMensagem.textContent =
-            resultado.message ||
-            'Não foi possível atualizar o produto.';
-
-        }
-
+        await window.YCAdmin.api.updateProduct(produto.id, patch);
+        message.textContent = 'Produto atualizado com sucesso.';
+        fechar();
+        await carregarProdutos();
       } catch (error) {
-
-        console.error(error);
-
-        editorMensagem.textContent =
-          'Erro ao contactar o servidor.';
-      }
+        editorMensagem.textContent = error.message;}
 
     });
 }

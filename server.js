@@ -1,310 +1,75 @@
-const cors = require('cors');
 require('dotenv').config();
-
 const express = require('express');
-const fs = require('fs');
-const path = require('path');
-const session = require('express-session');
-const multer = require('multer');
+const cors = require('cors');
+const helmet = require('helmet');
+const morgan = require('morgan');
+const rateLimit = require('express-rate-limit');
+const mongoose = require('mongoose');
+
+const authRoutes = require('./src/routes/auth');
+const productRoutes = require('./src/routes/products');
 
 const app = express();
-app.use(cors({ origin: ['https://johnkeyswick65-stack.github.io', 'https://yunnited-crew.pages.dev', 'https://yunnited-crew-backend.pages.dev'] }));
-
 const PORT = process.env.PORT || 3000;
 
-app.use(express.json());
-
-const uploadDir = path.join(__dirname, 'uploads');
-
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, uploadDir);
-  },
-  filename: (req, file, cb) => {
-    const ext = path.extname(file.originalname).toLowerCase();
-    const nome = Date.now() + '-' + Math.round(Math.random() * 1e9);
-    cb(null, nome + ext);
-  }
-});
-
-const upload = multer({
-  storage,
-  fileFilter: (req, file, cb) => {
-    if (file.mimetype.startsWith('image/')) {
-      cb(null, true);
-    } else {
-      cb(new Error('Apenas imagens são permitidas.'));
-    }
-  },
-  limits: {
-    fileSize: 5 * 1024 * 1024
-  }
-});
-
-app.use('/uploads', express.static(uploadDir));
-
-// Servir o frontend do YUNNITED CREW
-const frontendPath = path.join(__dirname, 'public');
-app.use(express.static(frontendPath));
-
-app.use(session({
-  secret: process.env.SESSION_SECRET,
-  resave: false,
-  saveUninitialized: false,
-  cookie: {
-    httpOnly: true,
-    sameSite: 'lax',
-    secure: false,
-    maxAge: 1000 * 60 * 60 * 2
-  }
+app.use(helmet({
+  crossOriginResourcePolicy: false,
+  contentSecurityPolicy: process.env.NODE_ENV !== 'production' ? false : undefined,
 }));
+app.use(cors({
+  origin: process.env.CORS_ORIGIN ? process.env.CORS_ORIGIN.split(',') : true,
+  credentials: true,
+}));
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+app.use(morgan('tiny'));
 
-const productsPath = path.join(__dirname, 'data', 'products.json');
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 20,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { success: false, message: 'Demasiadas tentativas. Tente mais tarde.' },
+});
 
-// Status do backend
+app.use('/api/login', authLimiter);
+app.use('/api/register', authLimiter);
+
 app.get('/api/status', (req, res) => {
   res.json({
     success: true,
-    message: 'Backend YUNNITED CREW funcionando!'
+    status: 'ok',
+    uptime: Math.round(process.uptime()),
+    timestamp: new Date().toISOString(),
+    db: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected',
   });
 });
 
-// Login administrativo
-app.post('/api/login', (req, res) => {
-  const { username, password } = req.body;
+app.use('/api', authRoutes);
+app.use('/api/products', productRoutes);
 
-  if (
-    username === process.env.ADMIN_USERNAME &&
-    password === process.env.ADMIN_PASSWORD
-  ) {
-    req.session.isAdmin = true;
+if (process.env.NODE_ENV !== 'production') {
+  const path = require('path');
+  app.use(express.static(path.join(__dirname, 'public')));
+  console.log('📁 [dev] a servir public/');
+}
 
-    return res.json({
-      success: true,
-      message: 'Login efetuado com sucesso.'
-    });
-  }
+app.use((req, res) => res.status(404).json({ success: false, message: 'Rota não encontrada.' }));
 
-  res.status(401).json({
-    success: false,
-    message: 'Utilizador ou palavra-passe incorretos.'
-  });
+app.use((err, req, res, next) => {
+  console.error('[ERRO]', err);
+  res.status(err.status || 500).json({ success: false, message: err.message || 'Erro interno.' });
 });
 
-// Verificar sessão administrativa
-app.get('/api/admin/check', (req, res) => {
-  res.json({
-    authenticated: req.session.isAdmin === true
-  });
-});
-
-// Logout
-app.post('/api/logout', (req, res) => {
-  req.session.destroy(() => {
-    res.json({
-      success: true,
-      message: 'Sessão terminada.'
-    });
-  });
-});
-
-app.get('/admin/admin.css', (req, res) => {
-  res.sendFile(path.join(__dirname, 'admin', 'admin.css'));
-});
-
-// Página de login administrativa
-app.get('/admin/login.html', (req, res) => {
-  res.sendFile(path.join(__dirname, 'admin', 'login.html'));
-});
-
-// Proteger painel administrativo
-app.get('/admin/admin.html', (req, res) => {
-  if (req.session.isAdmin !== true) {
-    return res.redirect('/admin/login.html');
-  }
-
-  res.sendFile(path.join(__dirname, 'admin', 'admin.html'));
-});
-
-// Listar produtos
-app.get('/api/products', (req, res) => {
+(async () => {
   try {
-    const products = JSON.parse(
-      fs.readFileSync(productsPath, 'utf-8')
-    );
-
-    res.json({
-      success: true,
-      products
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: 'Erro ao ler os produtos.'
-    });
+    if (!process.env.MONGO_URI) throw new Error('MONGO_URI não definido.');
+    if (!process.env.JWT_SECRET) throw new Error('JWT_SECRET não definido.');
+    await mongoose.connect(process.env.MONGO_URI);
+    console.log('✅ MongoDB conectado');
+    app.listen(PORT, () => console.log(`🚀 Servidor em http://localhost:${PORT}`));
+  } catch (e) {
+    console.error('❌ Falha ao arrancar:', e.message);
+    process.exit(1);
   }
-});
-
-
-// Adicionar produto (apenas administrador)
-app.post('/api/admin/products', upload.single('image'), (req, res) => {
-  if (req.session.isAdmin !== true) {
-    return res.status(401).json({
-      success: false,
-      message: 'Não autorizado.'
-    });
-  }
-
-  const { name, price, category, stock, description } = req.body;
-
-  if (!name || price === undefined || !category || stock === undefined) {
-    return res.status(400).json({
-      success: false,
-      message: 'Preencha os campos obrigatórios.'
-    });
-  }
-
-  try {
-    const products = JSON.parse(
-      fs.readFileSync(productsPath, 'utf-8')
-    );
-
-    const product = {
-      id: Date.now().toString(),
-      name,
-      price: Number(price),
-      category,
-      stock: Number(stock),
-      description: description || '',
-      image: req.file ? `/uploads/${req.file.filename}` : ''
-    };
-
-    products.push(product);
-
-    fs.writeFileSync(
-      productsPath,
-      JSON.stringify(products, null, 2)
-    );
-
-    res.json({
-      success: true,
-      message: 'Produto adicionado com sucesso.',
-      product
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: 'Erro ao guardar o produto.'
-    });
-  }
-});
-
-
-// Editar produto (apenas administrador)
-app.put('/api/admin/products/:id', upload.single('image'), (req, res) => {
-  if (req.session.isAdmin !== true) {
-    return res.status(401).json({
-      success: false,
-      message: 'Não autorizado.'
-    });
-  }
-
-  try {
-    const products = JSON.parse(
-      fs.readFileSync(productsPath, 'utf-8')
-    );
-
-    const index = products.findIndex(
-      product => product.id === req.params.id
-    );
-
-    if (index === -1) {
-      return res.status(404).json({
-        success: false,
-        message: 'Produto não encontrado.'
-      });
-    }
-
-    const product = products[index];
-
-    if (req.body.name !== undefined) product.name = req.body.name;
-    if (req.body.price !== undefined) product.price = Number(req.body.price);
-    if (req.body.category !== undefined) product.category = req.body.category;
-    if (req.body.stock !== undefined) product.stock = Number(req.body.stock);
-    if (req.body.description !== undefined) product.description = req.body.description;
-
-    if (req.file) {
-      product.image = `/uploads/${req.file.filename}`;
-    }
-
-    products[index] = product;
-
-    fs.writeFileSync(
-      productsPath,
-      JSON.stringify(products, null, 2)
-    );
-
-    res.json({
-      success: true,
-      message: 'Produto atualizado com sucesso.',
-      product
-    });
-
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: 'Erro ao atualizar o produto.'
-    });
-  }
-});
-
-
-// Eliminar produto (apenas administrador)
-app.delete('/api/admin/products/:id', (req, res) => {
-  if (req.session.isAdmin !== true) {
-    return res.status(401).json({
-      success: false,
-      message: 'Não autorizado.'
-    });
-  }
-
-  try {
-    const products = JSON.parse(
-      fs.readFileSync(productsPath, 'utf-8')
-    );
-
-    const index = products.findIndex(
-      product => product.id === req.params.id
-    );
-
-    if (index === -1) {
-      return res.status(404).json({
-        success: false,
-        message: 'Produto não encontrado.'
-      });
-    }
-
-    const removed = products.splice(index, 1)[0];
-
-    fs.writeFileSync(
-      productsPath,
-      JSON.stringify(products, null, 2)
-    );
-
-    res.json({
-      success: true,
-      message: 'Produto eliminado com sucesso.',
-      product: removed
-    });
-
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: 'Erro ao eliminar o produto.'
-    });
-  }
-});
-
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`Backend rodando na porta ${PORT}`);
-});
+})();

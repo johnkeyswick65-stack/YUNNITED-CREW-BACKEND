@@ -1,4 +1,13 @@
-node_modules/
+node_modules
 .env
-cookies.txt
+.env.local
 *.log
+.DS_Store
+_backups/
+
+# Backups e lixo local
+cookies.txt
+*.backup*
+*.bak
+public.backup-antes-login/
+_backups/

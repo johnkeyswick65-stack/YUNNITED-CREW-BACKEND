@@ -203,8 +203,12 @@
 
   </main>
 
-  <script>
+  <script src="/admin/admin-api.js?v=2"></script>
+<script>
     const loginForm = document.getElementById('loginForm');
+if (window.YCAdmin && window.YCAdmin.isLogged()) {
+  window.location.href = '/admin/admin.html';
+}
     const message = document.getElementById('message');
     const loginButton = document.getElementById('loginButton');
 
@@ -219,31 +223,11 @@
       message.textContent = '';
 
       try {
-        const response = await fetch('/api/login', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          credentials: 'include',
-          body: JSON.stringify({
-            username,
-            password
-          })
-        });
-
-        const data = await response.json();
-
-        if (data.success) {
-          message.textContent = 'Login efetuado com sucesso.';
-          window.location.href = '/admin/admin.html';
-        } else {
-          message.textContent = data.message;
-          loginButton.disabled = false;
-          loginButton.textContent = 'Entrar';
-        }
-
+        await window.YCAdmin.api.login(username, password);
+        message.textContent = 'Login efetuado. A redirecionar...';
+        setTimeout(() => { window.location.href = '/admin/admin.html'; }, 400);
       } catch (error) {
-        message.textContent = 'Erro ao contactar o servidor.';
+        message.textContent = error.message;
         loginButton.disabled = false;
         loginButton.textContent = 'Entrar';
       }
