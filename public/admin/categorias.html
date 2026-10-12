@@ -4,57 +4,143 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Categorias | YUNNITED CREW</title>
-<link rel="stylesheet" href="/admin/admin.css">
 <style>
-  body { background: #0b0b0b; color: #fff; font-family: Arial, sans-serif; margin: 0; padding: 20px; }
-  .wrap { max-width: 900px; margin: 0 auto; }
-  h1 { font-size: 22px; margin: 0 0 4px; }
-  .sub { color: #888; font-size: 13px; margin: 0 0 24px; }
-  .nav { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; }
-  .nav a { color: #ccc; text-decoration: none; padding: 8px 14px; border: 1px solid #292929; border-radius: 8px; font-size: 13px; }
-  .nav a.active { background: #fff; color: #000; border-color: #fff; }
-  .card { background: #151515; border: 1px solid #292929; border-radius: 14px; padding: 20px; margin-bottom: 20px; }
-  .card h2 { font-size: 16px; margin: 0 0 16px; }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  :root {
+    --bg: #07070a; --surface: #101015; --surface-2: #16161c;
+    --border: rgba(255,255,255,.07); --border-strong: rgba(255,255,255,.14);
+    --text: #f5f5f7; --muted: #8a8a94;
+    --accent: #7c5cff; --green: #22c55e; --red: #ff3b30; --amber: #f5b400;
+  }
+  body {
+    background: radial-gradient(1200px 600px at 50% -200px, #16121f 0%, var(--bg) 55%);
+    color: var(--text); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Arial, sans-serif;
+    margin: 0; padding: 20px 16px 40px; min-height: 100vh; -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 880px; margin: 0 auto; }
+
+  .top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+  .brand { display: flex; align-items: center; gap: 12px; }
+  .brand-mark svg { width: 22px; height: 22px; }
+  .brand-mark {
+    width: 44px; height: 44px; border-radius: 13px; flex-shrink: 0;
+    background: linear-gradient(135deg, #7c5cff, #b44cff);
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 800; font-size: 15px; color: #fff;
+    box-shadow: 0 8px 22px rgba(124,92,255,.35), inset 0 1px 0 rgba(255,255,255,.2);
+  }
+  .brand h1 { font-size: 19px; font-weight: 800; margin: 0; letter-spacing: .3px; }
+  .brand p { color: var(--muted); font-size: 12.5px; margin: 2px 0 0; }
+
+  .nav { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 22px; }
+  .nav a {
+    color: #c5c5cc; text-decoration: none; padding: 8px 14px; border-radius: 10px;
+    font-size: 13px; background: var(--surface); border: 1px solid var(--border);
+    transition: border-color .15s, color .15s;
+  }
+  .nav a:hover { border-color: var(--border-strong); }
+  .nav a.active { background: #fff; color: #000; border-color: #fff; font-weight: 600; }
+
+  .section {
+    background: linear-gradient(160deg, var(--surface-2) 0%, var(--surface) 100%);
+    border: 1px solid var(--border); border-radius: 18px;
+    padding: 20px; margin-bottom: 18px;
+  }
+  .section h2 { font-size: 15px; font-weight: 700; margin: 0 0 16px; letter-spacing: -.2px; }
+
   .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
   .grid .full { grid-column: 1 / -1; }
-  label { display: block; font-size: 12px; color: #aaa; margin-bottom: 4px; }
-  input[type=text], input[type=number] { width: 100%; padding: 10px 12px; background: #0d0d0d; border: 1px solid #333; border-radius: 8px; color: #fff; font-size: 14px; box-sizing: border-box; }
-  input[type=color] { width: 100%; height: 40px; border: 1px solid #333; border-radius: 8px; background: #0d0d0d; padding: 2px; }
-  .row { display: flex; align-items: center; gap: 8px; margin-top: 8px; }
-  .btn { padding: 10px 16px; border-radius: 8px; border: 0; font-size: 14px; font-weight: 600; cursor: pointer; }
-  .btn-primary { background: #fff; color: #000; }
-  .btn-ghost { background: transparent; border: 1px solid #333; color: #ccc; }
-  .btn-danger { background: #ff3b30; color: #fff; }
-  .btn-sm { padding: 6px 10px; font-size: 12px; }
-  .list { display: flex; flex-direction: column; gap: 10px; }
-  .item { display: flex; align-items: center; gap: 12px; padding: 14px; background: #0d0d0d; border: 1px solid #222; border-radius: 10px; }
-  .item.inactive { opacity: .5; }
-  .dot { width: 16px; height: 16px; border-radius: 50%; flex-shrink: 0; border: 1px solid #333; }
-  .item-main { flex: 1; min-width: 0; }
-  .item-name { font-weight: 600; }
-  .item-meta { font-size: 12px; color: #888; margin-top: 2px; }
-  .item-actions { display: flex; gap: 6px; flex-wrap: wrap; }
-  #message { min-height: 20px; font-size: 13px; color: #ddd; margin-top: 12px; }
-  .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); padding: 12px 20px; border-radius: 10px; font-size: 14px; z-index: 999; }
-  .toast.ok { background: #1db954; color: #fff; }
-  .toast.err { background: #ff3b30; color: #fff; }
   @media (max-width: 600px) { .grid { grid-template-columns: 1fr; } }
+
+  label { display: block; font-size: 12px; color: #a5a5ad; margin-bottom: 6px; font-weight: 600; }
+  input[type=text], input[type=number] {
+    width: 100%; padding: 11px 13px; background: #0a0a0f;
+    border: 1px solid var(--border); border-radius: 10px; color: var(--text);
+    font-size: 14px; font-family: inherit; outline: none;
+    transition: border-color .15s, box-shadow .15s;
+  }
+  input:focus { border-color: rgba(124,92,255,.6); box-shadow: 0 0 0 3px rgba(124,92,255,.15); }
+  input[type=color] {
+    width: 100%; height: 42px; padding: 3px;
+    background: #0a0a0f; border: 1px solid var(--border); border-radius: 10px;
+    cursor: pointer;
+  }
+
+  .check-row { display: flex; align-items: center; gap: 10px; margin-top: 6px; }
+  .check-row input { width: 18px; height: 18px; accent-color: var(--accent); }
+  .check-row label { margin: 0; font-size: 13px; color: #c5c5cc; }
+
+  .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-top: 16px; }
+  .btn {
+    padding: 11px 18px; border-radius: 10px; border: 0;
+    font-size: 14px; font-weight: 700; cursor: pointer;
+    transition: opacity .15s, transform .1s;
+  }
+  .btn:active { transform: scale(.98); }
+  .btn-primary { background: linear-gradient(135deg, #7c5cff, #b44cff); color: #fff; box-shadow: 0 8px 22px -8px rgba(124,92,255,.6); }
+  .btn-ghost { background: transparent; border: 1px solid var(--border-strong); color: #c5c5cc; }
+  .btn-danger { background: var(--red); color: #fff; }
+  .btn-sm { padding: 7px 12px; font-size: 12.5px; }
+  .btn:disabled { opacity: .5; cursor: not-allowed; }
+
+  #msg { min-height: 20px; font-size: 13px; color: #c5c5cc; margin: 10px 0 0; }
+
+  .list { display: flex; flex-direction: column; gap: 10px; }
+  .item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 14px; background: #0a0a0f; border: 1px solid var(--border);
+    border-radius: 12px; transition: border-color .15s;
+  }
+  .item:hover { border-color: var(--border-strong); }
+  .item.inactive { opacity: .45; }
+  .color-dot {
+    width: 22px; height: 22px; border-radius: 50%; flex-shrink: 0;
+    border: 2px solid rgba(255,255,255,.1);
+    box-shadow: 0 4px 10px -4px rgba(0,0,0,.9);
+  }
+  .item-main { flex: 1; min-width: 0; }
+  .item-name { font-weight: 700; font-size: 14px; }
+  .item-meta { font-size: 11.5px; color: var(--muted); margin-top: 3px; }
+  .item-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+
+  .empty { padding: 22px; text-align: center; color: var(--muted); font-size: 13px; border: 1px dashed var(--border); border-radius: 12px; }
+
+  .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); padding: 12px 20px; border-radius: 12px; font-size: 13.5px; font-weight: 600; z-index: 999; box-shadow: 0 12px 30px rgba(0,0,0,.4); }
+  .toast.ok { background: var(--green); color: #fff; }
+  .toast.err { background: var(--red); color: #fff; }
+
+  .header-divider {
+    height: 1px;
+    background: rgba(255,255,255,.12);
+    margin: 0 0 24px;
+  }
 </style>
 </head>
 <body>
 <div class="wrap">
-  <h1>YUNNITED CREW</h1>
-  <p class="sub">Gestão de categorias</p>
+
+  <div class="top">
+    <div class="brand">
+      <div class="brand-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg></div>
+      <div>
+        <h1>Categorias</h1>
+        <p>YUNNITED CREW · Organização do catálogo</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="header-divider"></div>
 
   <nav class="nav">
-    <a href="/admin/admin.html">Produtos</a>
+    <a href="/admin/admin.html">Início</a>
+    <a href="/admin/produtos.html">Produtos</a>
     <a href="/admin/categorias.html" class="active">Categorias</a>
     <a href="/admin/dashboard.html">Dashboard</a>
     <a href="/admin/armazenamento.html">Armazenamento</a>
     <a href="/admin/perfil.html">Perfil</a>
   </nav>
 
-  <section class="card">
+  <section class="section">
     <h2 id="formTitle">Nova categoria</h2>
     <form id="catForm">
       <input type="hidden" id="catId">
@@ -76,45 +162,32 @@
           <input type="text" id="catIcon" placeholder="https://res.cloudinary.com/...">
         </div>
         <div class="full">
-          <div class="row">
+          <div class="check-row">
             <input type="checkbox" id="catActive" checked>
-            <label for="catActive" style="margin:0">Ativa (visível na loja)</label>
+            <label for="catActive">Ativa (visível na loja)</label>
           </div>
         </div>
       </div>
-      <div class="row" style="margin-top:14px">
+      <p id="msg"></p>
+      <div class="row">
         <button type="submit" class="btn btn-primary" id="saveBtn">Criar categoria</button>
         <button type="button" class="btn btn-ghost" id="cancelBtn" style="display:none">Cancelar edição</button>
       </div>
-      <p id="message"></p>
     </form>
   </section>
 
-  <section class="card">
+  <section class="section">
     <h2>Categorias</h2>
-    <div class="list" id="catList"><p style="color:#888">A carregar...</p></div>
+    <div class="list" id="catList"><p style="color:#8a8a94">A carregar...</p></div>
   </section>
 </div>
 
 <script src="/admin/admin-api.js"></script>
 <script>
-const { api, requireLogin, CATEGORIES } = window.YCAdmin;
+const { api, requireLogin } = window.YCAdmin;
 if (!requireLogin()) throw new Error('redirect');
 
-const listEl = document.getElementById('catList');
-const form = document.getElementById('catForm');
-const msg = document.getElementById('message');
-const formTitle = document.getElementById('formTitle');
-const saveBtn = document.getElementById('saveBtn');
-const cancelBtn = document.getElementById('cancelBtn');
-const fields = {
-  id: document.getElementById('catId'),
-  name: document.getElementById('catName'),
-  order: document.getElementById('catOrder'),
-  color: document.getElementById('catColor'),
-  icon: document.getElementById('catIcon'),
-  active: document.getElementById('catActive'),
-};
+const $ = (id) => document.getElementById(id);
 
 function toast(text, ok = true) {
   const t = document.createElement('div');
@@ -124,28 +197,32 @@ function toast(text, ok = true) {
   setTimeout(() => t.remove(), 3000);
 }
 
+function escapeHtml(s) {
+  return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
 function resetForm() {
-  form.reset();
-  fields.id.value = '';
-  fields.color.value = '#000000';
-  fields.order.value = 0;
-  fields.active.checked = true;
-  formTitle.textContent = 'Nova categoria';
-  saveBtn.textContent = 'Criar categoria';
-  cancelBtn.style.display = 'none';
-  msg.textContent = '';
+  $('catForm').reset();
+  $('catId').value = '';
+  $('catColor').value = '#000000';
+  $('catOrder').value = 0;
+  $('catActive').checked = true;
+  $('formTitle').textContent = 'Nova categoria';
+  $('saveBtn').textContent = 'Criar categoria';
+  $('cancelBtn').style.display = 'none';
+  $('msg').textContent = '';
 }
 
 function startEdit(cat) {
-  fields.id.value = cat._id;
-  fields.name.value = cat.name;
-  fields.order.value = cat.order;
-  fields.color.value = cat.color || '#000000';
-  fields.icon.value = cat.icon || '';
-  fields.active.checked = cat.active;
-  formTitle.textContent = 'Editar: ' + cat.name;
-  saveBtn.textContent = 'Guardar alterações';
-  cancelBtn.style.display = 'inline-block';
+  $('catId').value = cat._id;
+  $('catName').value = cat.name;
+  $('catOrder').value = cat.order;
+  $('catColor').value = cat.color || '#000000';
+  $('catIcon').value = cat.icon || '';
+  $('catActive').checked = cat.active;
+  $('formTitle').textContent = 'Editar: ' + cat.name;
+  $('saveBtn').textContent = 'Guardar alterações';
+  $('cancelBtn').style.display = 'inline-block';
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
@@ -153,42 +230,33 @@ async function render() {
   try {
     const items = await api.listAllCategories();
     if (!items.length) {
-      listEl.innerHTML = '<p style="color:#888">Sem categorias. Cria a primeira.</p>';
+      $('catList').innerHTML = '<div class="empty">Sem categorias. Cria a primeira acima.</div>';
       return;
     }
-    listEl.innerHTML = items.map(cat => `
+    $('catList').innerHTML = items.map(cat => `
       <div class="item ${cat.active ? '' : 'inactive'}">
-        <span class="dot" style="background:${cat.color || '#000'}"></span>
+        <span class="color-dot" style="background:${cat.color || '#000'}"></span>
         <div class="item-main">
           <div class="item-name">${escapeHtml(cat.name)}</div>
           <div class="item-meta">
             ${escapeHtml(cat.slug)} · ordem ${cat.order} ·
             ${cat.active ? 'ativa' : 'inativa'}
-            ${cat.productCount != null ? ' · ' + cat.productCount + ' produto(s)' : ''}
           </div>
         </div>
         <div class="item-actions">
-          <button class="btn btn-ghost btn-sm" data-act="toggle" data-id="${cat._id}" data-active="${cat.active}">
-            ${cat.active ? 'Desativar' : 'Ativar'}
-          </button>
-          <button class="btn btn-primary btn-sm" data-act="edit" data-id="${cat._id}">Editar</button>
+          <button class="btn btn-ghost btn-sm" data-act="toggle" data-id="${cat._id}" data-active="${cat.active}">${cat.active ? 'Desativar' : 'Ativar'}</button>
+          <button class="btn btn-ghost btn-sm" data-act="edit" data-id="${cat._id}">Editar</button>
           <button class="btn btn-danger btn-sm" data-act="delete" data-id="${cat._id}" data-name="${escapeHtml(cat.name)}">Apagar</button>
         </div>
       </div>
     `).join('');
 
-    listEl.querySelectorAll('button[data-act]').forEach(btn => {
+    $('catList').querySelectorAll('button[data-act]').forEach(btn => {
       btn.addEventListener('click', () => handleAction(btn.dataset, items));
     });
   } catch (e) {
-    listEl.innerHTML = '<p style="color:#ff3b30">' + escapeHtml(e.message) + '</p>';
+    $('catList').innerHTML = '<div class="empty" style="color:#ff3b30">Erro: ' + escapeHtml(e.message) + '</div>';
   }
-}
-
-function escapeHtml(s) {
-  return String(s == null ? '' : s)
-    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 }
 
 async function handleAction(data, items) {
@@ -216,20 +284,20 @@ async function handleAction(data, items) {
   }
 }
 
-form.addEventListener('submit', async (e) => {
+$('catForm').addEventListener('submit', async (e) => {
   e.preventDefault();
   const payload = {
-    name: fields.name.value.trim(),
-    order: Number(fields.order.value) || 0,
-    color: fields.color.value,
-    icon: fields.icon.value.trim(),
-    active: fields.active.checked,
+    name: $('catName').value.trim(),
+    order: Number($('catOrder').value) || 0,
+    color: $('catColor').value,
+    icon: $('catIcon').value.trim(),
+    active: $('catActive').checked,
   };
-  const editing = !!fields.id.value;
+  const editing = !!$('catId').value;
   try {
-    saveBtn.disabled = true;
+    $('saveBtn').disabled = true;
     if (editing) {
-      await api.updateCategory(fields.id.value, payload);
+      await api.updateCategory($('catId').value, payload);
       toast('Categoria atualizada.');
     } else {
       await api.createCategory(payload);
@@ -238,14 +306,14 @@ form.addEventListener('submit', async (e) => {
     resetForm();
     render();
   } catch (err) {
-    msg.textContent = err.message;
+    $('msg').textContent = err.message;
     toast(err.message, false);
   } finally {
-    saveBtn.disabled = false;
+    $('saveBtn').disabled = false;
   }
 });
 
-cancelBtn.addEventListener('click', resetForm);
+$('cancelBtn').addEventListener('click', resetForm);
 
 render();
 </script>

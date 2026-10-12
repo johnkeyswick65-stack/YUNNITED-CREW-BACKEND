@@ -1,238 +1,191 @@
 <!DOCTYPE html>
 <html lang="pt">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Entrar | YUNNITED CREW</title>
+<style>
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  :root {
+    --bg: #07070a; --surface: #101015; --surface-2: #16161c;
+    --border: rgba(255,255,255,.07); --border-strong: rgba(255,255,255,.14);
+    --text: #f5f5f7; --muted: #8a8a94;
+    --accent: #7c5cff; --green: #22c55e; --red: #ff3b30;
+  }
+  body {
+    background: radial-gradient(1200px 600px at 50% -200px, #16121f 0%, var(--bg) 55%);
+    color: var(--text); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Arial, sans-serif;
+    margin: 0; min-height: 100vh; display: flex; align-items: center; justify-content: center;
+    padding: 24px 18px; -webkit-font-smoothing: antialiased;
+  }
+  .card {
+    width: 100%; max-width: 420px;
+    background: linear-gradient(160deg, var(--surface-2) 0%, var(--surface) 100%);
+    border: 1px solid var(--border); border-radius: 22px;
+    padding: 32px 26px 26px;
+    box-shadow: 0 30px 80px -40px rgba(124,92,255,.4), 0 10px 30px -20px #000;
+  }
+  .brand {
+    display: flex; flex-direction: column; align-items: center;
+    text-align: center; margin-bottom: 26px;
+  }
+  .brand-mark {
+    width: 56px; height: 56px; border-radius: 17px;
+    background: linear-gradient(135deg, #7c5cff, #b44cff);
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; margin-bottom: 16px;
+    box-shadow: 0 12px 30px -10px rgba(124,92,255,.7), inset 0 1px 0 rgba(255,255,255,.2);
+  }
+  .brand-mark svg { width: 26px; height: 26px; }
+  .brand h1 { font-size: 20px; font-weight: 800; margin: 0 0 6px; letter-spacing: .4px; }
+  .brand p { font-size: 12.5px; color: var(--muted); margin: 0; }
 
-  <title>Login | YUNNITED CREW</title>
+  .intro { margin-bottom: 22px; }
+  .intro h2 { font-size: 17px; font-weight: 700; margin: 0 0 4px; }
+  .intro p { font-size: 13px; color: var(--muted); margin: 0; }
 
-  <style>
-    * {
-      box-sizing: border-box;
-    }
+  .field { margin-bottom: 16px; }
+  .field label {
+    display: block; font-size: 12px; color: #a5a5ad;
+    margin-bottom: 7px; font-weight: 600;
+  }
+  .input-wrap { position: relative; }
+  .input-wrap input {
+    width: 100%; padding: 13px 14px; background: #0a0a0f;
+    border: 1px solid var(--border); border-radius: 12px; color: var(--text);
+    font-size: 15px; font-family: inherit; outline: none;
+    transition: border-color .15s, box-shadow .15s;
+  }
+  .input-wrap input:focus {
+    border-color: rgba(124,92,255,.6);
+    box-shadow: 0 0 0 3px rgba(124,92,255,.15);
+  }
+  .input-wrap input[type=password] { padding-right: 48px; }
+  .toggle-eye {
+    position: absolute; right: 6px; top: 50%; transform: translateY(-50%);
+    width: 38px; height: 38px; border: 0; border-radius: 9px;
+    background: transparent; color: var(--muted); cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: color .15s, background .15s;
+  }
+  .toggle-eye:hover { color: #fff; background: rgba(255,255,255,.05); }
+  .toggle-eye svg { width: 19px; height: 19px; }
 
-    body {
-      margin: 0;
-      min-height: 100vh;
-      font-family: Arial, Helvetica, sans-serif;
-      background: #0b0b0b;
-      color: #fff;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
-    }
+  .btn {
+    width: 100%; padding: 14px; border: 0; border-radius: 12px;
+    background: linear-gradient(135deg, #7c5cff, #b44cff); color: #fff;
+    font-size: 15px; font-weight: 700; cursor: pointer; letter-spacing: .2px;
+    box-shadow: 0 12px 30px -10px rgba(124,92,255,.7);
+    transition: transform .1s, opacity .15s;
+    margin-top: 6px;
+  }
+  .btn:active { transform: scale(.98); }
+  .btn:disabled { opacity: .55; cursor: not-allowed; }
 
-    .login-wrapper {
-      width: 100%;
-      max-width: 420px;
-    }
+  #message {
+    min-height: 22px; text-align: center; margin: 14px 0 0;
+    font-size: 13px; color: #c5c5cc;
+  }
+  #message.err { color: var(--red); }
+  #message.ok { color: var(--green); }
 
-    .brand {
-      text-align: center;
-      margin-bottom: 24px;
-    }
-
-    .brand-name {
-      font-size: 28px;
-      font-weight: 800;
-      letter-spacing: 1px;
-      margin: 0;
-    }
-
-    .brand-line {
-      width: 45px;
-      height: 3px;
-      background: #fff;
-      margin: 12px auto;
-      border-radius: 10px;
-    }
-
-    .brand-subtitle {
-      color: #999;
-      font-size: 13px;
-      margin: 0;
-    }
-
-    .login-card {
-      background: #151515;
-      border: 1px solid #292929;
-      border-radius: 18px;
-      padding: 30px;
-      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.35);
-    }
-
-    .login-card h2 {
-      margin: 0 0 8px;
-      font-size: 22px;
-    }
-
-    .login-card .description {
-      color: #999;
-      font-size: 14px;
-      margin: 0 0 26px;
-    }
-
-    .field {
-      margin-bottom: 18px;
-    }
-
-    .field label {
-      display: block;
-      margin-bottom: 8px;
-      font-size: 14px;
-      font-weight: 600;
-    }
-
-    .field input {
-      width: 100%;
-      padding: 13px 14px;
-      border: 1px solid #333;
-      border-radius: 10px;
-      background: #0d0d0d;
-      color: #fff;
-      font-size: 15px;
-      outline: none;
-    }
-
-    .field input:focus {
-      border-color: #fff;
-    }
-
-    .button {
-      width: 100%;
-      border: 0;
-      border-radius: 10px;
-      padding: 14px;
-      background: #fff;
-      color: #000;
-      font-size: 15px;
-      font-weight: 700;
-      cursor: pointer;
-      transition: 0.2s;
-    }
-
-    .button:hover {
-      opacity: 0.9;
-    }
-
-    .button:disabled {
-      opacity: 0.6;
-      cursor: not-allowed;
-    }
-
-    #message {
-      min-height: 20px;
-      text-align: center;
-      margin: 18px 0 0;
-      font-size: 14px;
-      color: #ddd;
-    }
-
-    .footer {
-      text-align: center;
-      color: #666;
-      font-size: 12px;
-      margin-top: 22px;
-    }
-
-    @media (max-width: 480px) {
-      .login-card {
-        padding: 24px 20px;
-      }
-
-      .brand-name {
-        font-size: 24px;
-      }
-    }
-  </style>
+  .footer {
+    text-align: center; color: #5c5c66; font-size: 11.5px;
+    margin-top: 22px; letter-spacing: .3px;
+  }
+</style>
 </head>
-
 <body>
+<main class="card">
+  <div class="brand">
+    <div class="brand-mark">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>
+    </div>
+    <h1>YUNNITED CREW</h1>
+    <p>O maior mercado Branco de Moçambique</p>
+  </div>
 
-  <main class="login-wrapper">
+  <div class="intro">
+    <h2>Área administrativa</h2>
+    <p>Entre para gerir os produtos do YUNNITED CREW.</p>
+  </div>
 
-    <div class="brand">
-      <h1 class="brand-name">YUNNITED CREW</h1>
-      <div class="brand-line"></div>
-      <p class="brand-subtitle">O maior mercado Branco de Moçambique</p>
+  <form id="loginForm" autocomplete="on">
+    <div class="field">
+      <label for="username">Utilizador</label>
+      <div class="input-wrap">
+        <input type="text" id="username" autocomplete="username" required>
+      </div>
     </div>
 
-    <section class="login-card">
-
-      <h2>Área administrativa</h2>
-      <p class="description">
-        Entre para gerir os produtos do YUNNITED CREW.
-      </p>
-
-      <form id="loginForm">
-
-        <div class="field">
-          <label for="username">Utilizador</label>
-          <input
-            type="text"
-            id="username"
-            autocomplete="username"
-            required
-          >
-        </div>
-
-        <div class="field">
-          <label for="password">Palavra-passe</label>
-          <input
-            type="password"
-            id="password"
-            autocomplete="current-password"
-            required
-          >
-        </div>
-
-        <button type="submit" class="button" id="loginButton">
-          Entrar
+    <div class="field">
+      <label for="password">Palavra-passe</label>
+      <div class="input-wrap">
+        <input type="password" id="password" autocomplete="current-password" required>
+        <button type="button" class="toggle-eye" id="toggleEye" aria-label="Mostrar palavra-passe">
+          <svg id="eyeOpen" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/>
+            <circle cx="12" cy="12" r="3"/>
+          </svg>
+          <svg id="eyeClosed" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:none">
+            <path d="M17.94 17.94A10.07 10.07 0 0112 20c-6.5 0-10-8-10-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c6.5 0 10 8 10 8a18.5 18.5 0 01-2.16 3.19"/>
+            <path d="M1 1l22 22"/>
+          </svg>
         </button>
-
-      </form>
-
-      <p id="message"></p>
-
-    </section>
-
-    <div class="footer">
-      YUNNITED CREW • Administração
+      </div>
     </div>
 
-  </main>
+    <button type="submit" class="btn" id="loginButton">Entrar</button>
+  </form>
 
-  <script src="/admin/admin-api.js?v=2"></script>
+  <p id="message"></p>
+  <div class="footer">YUNNITED CREW · Administração</div>
+</main>
+
+<script src="/admin/admin-api.js"></script>
 <script>
-    const loginForm = document.getElementById('loginForm');
+const loginForm = document.getElementById('loginForm');
+const message = document.getElementById('message');
+const loginButton = document.getElementById('loginButton');
+const passwordInput = document.getElementById('password');
+const toggleEye = document.getElementById('toggleEye');
+const eyeOpen = document.getElementById('eyeOpen');
+const eyeClosed = document.getElementById('eyeClosed');
+
 if (window.YCAdmin && window.YCAdmin.isLogged()) {
   window.location.href = '/admin/admin.html';
 }
-    const message = document.getElementById('message');
-    const loginButton = document.getElementById('loginButton');
 
-    loginForm.addEventListener('submit', async (event) => {
-      event.preventDefault();
+toggleEye.addEventListener('click', () => {
+  const isPassword = passwordInput.type === 'password';
+  passwordInput.type = isPassword ? 'text' : 'password';
+  eyeOpen.style.display = isPassword ? 'none' : 'block';
+  eyeClosed.style.display = isPassword ? 'block' : 'none';
+  toggleEye.setAttribute('aria-label', isPassword ? 'Esconder palavra-passe' : 'Mostrar palavra-passe');
+});
 
-      const username = document.getElementById('username').value;
-      const password = document.getElementById('password').value;
+loginForm.addEventListener('submit', async (event) => {
+  event.preventDefault();
+  const username = document.getElementById('username').value;
+  const password = passwordInput.value;
 
-      loginButton.disabled = true;
-      loginButton.textContent = 'A entrar...';
-      message.textContent = '';
+  loginButton.disabled = true;
+  loginButton.textContent = 'A entrar...';
+  message.textContent = '';
+  message.className = '';
 
-      try {
-        await window.YCAdmin.api.login(username, password);
-        message.textContent = 'Login efetuado. A redirecionar...';
-        setTimeout(() => { window.location.href = '/admin/admin.html'; }, 400);
-      } catch (error) {
-        message.textContent = error.message;
-        loginButton.disabled = false;
-        loginButton.textContent = 'Entrar';
-      }
-    });
-  </script>
-
+  try {
+    await window.YCAdmin.api.login(username, password);
+    message.textContent = 'Login efetuado. A redirecionar...';
+    message.className = 'ok';
+    setTimeout(() => { window.location.href = '/admin/admin.html'; }, 400);
+  } catch (error) {
+    message.textContent = error.message;
+    message.className = 'err';
+    loginButton.disabled = false;
+    loginButton.textContent = 'Entrar';
+  }
+});
+</script>
 </body>
 </html>

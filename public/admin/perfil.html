@@ -4,45 +4,100 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Perfil | YUNNITED CREW</title>
-<link rel="stylesheet" href="/admin/admin.css">
 <style>
-  body { background: #0b0b0b; color: #fff; font-family: Arial, sans-serif; margin: 0; padding: 20px; }
-  .wrap { max-width: 800px; margin: 0 auto; }
-  h1 { font-size: 22px; margin: 0 0 4px; }
-  .sub { color: #888; font-size: 13px; margin: 0 0 20px; }
-  .nav { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; }
-  .nav a { color: #ccc; text-decoration: none; padding: 8px 14px; border: 1px solid #292929; border-radius: 8px; font-size: 13px; }
-  .nav a.active { background: #fff; color: #000; border-color: #fff; }
-  .section { background: #151515; border: 1px solid #292929; border-radius: 14px; padding: 20px; margin-bottom: 20px; }
-  .section h2 { font-size: 15px; margin: 0 0 16px; }
-  .kv { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #1f1f1f; font-size: 14px; }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  :root {
+    --bg: #07070a; --surface: #101015; --surface-2: #16161c;
+    --border: rgba(255,255,255,.07); --border-strong: rgba(255,255,255,.14);
+    --text: #f5f5f7; --muted: #8a8a94;
+    --accent: #7c5cff; --green: #22c55e; --red: #ff3b30;
+  }
+  body {
+    background: radial-gradient(1200px 600px at 50% -200px, #16121f 0%, var(--bg) 55%);
+    color: var(--text); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Arial, sans-serif;
+    margin: 0; padding: 20px 16px 40px; min-height: 100vh; -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 780px; margin: 0 auto; }
+  .top { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
+  .brand-mark svg { width: 22px; height: 22px; }
+  .brand-mark {
+    width: 44px; height: 44px; border-radius: 13px; flex-shrink: 0;
+    background: linear-gradient(135deg, #7c5cff, #b44cff);
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 800; font-size: 15px; color: #fff;
+    box-shadow: 0 8px 22px rgba(124,92,255,.35), inset 0 1px 0 rgba(255,255,255,.2);
+  }
+  .top h1 { font-size: 19px; font-weight: 800; margin: 0; letter-spacing: .3px; }
+  .top p { color: var(--muted); font-size: 12.5px; margin: 2px 0 0; }
+
+  .nav { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 22px; }
+  .nav a { color: #c5c5cc; text-decoration: none; padding: 8px 14px; border-radius: 10px; font-size: 13px; background: var(--surface); border: 1px solid var(--border); }
+  .nav a.active { background: #fff; color: #000; border-color: #fff; font-weight: 600; }
+
+  .section {
+    background: linear-gradient(160deg, var(--surface-2) 0%, var(--surface) 100%);
+    border: 1px solid var(--border); border-radius: 18px;
+    padding: 20px; margin-bottom: 18px;
+  }
+  .section h2 { font-size: 15px; font-weight: 700; margin: 0 0 16px; }
+
+  .account { display: flex; align-items: center; gap: 14px; margin-bottom: 18px; padding-bottom: 18px; border-bottom: 1px solid var(--border); }
+  .avatar-lg {
+    width: 60px; height: 60px; border-radius: 18px; flex-shrink: 0;
+    background: linear-gradient(135deg, #7c5cff, #b44cff);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 24px; font-weight: 800; color: #fff;
+    box-shadow: 0 10px 26px -10px rgba(124,92,255,.7);
+  }
+  .account .info h3 { font-size: 17px; margin: 0 0 3px; font-weight: 700; }
+  .account .info p { font-size: 12.5px; color: var(--muted); margin: 0; text-transform: capitalize; }
+
+  .kv { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 13.5px; }
   .kv:last-child { border-bottom: 0; }
-  .kv b { color: #fff; }
-  .kv .muted { color: #888; font-size: 12px; }
-  .row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 16px; }
-  .btn { padding: 10px 16px; border-radius: 8px; border: 0; font-size: 14px; font-weight: 600; cursor: pointer; }
-  .btn-primary { background: #fff; color: #000; }
-  .btn-danger { background: #ff3b30; color: #fff; }
-  .btn-ghost { background: transparent; border: 1px solid #333; color: #ccc; }
+  .kv .muted { color: var(--muted); font-size: 11.5px; word-break: break-all; }
+
+  .row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; }
+  .btn { padding: 11px 16px; border-radius: 10px; border: 0; font-size: 13.5px; font-weight: 700; cursor: pointer; transition: transform .1s; }
+  .btn:active { transform: scale(.98); }
+  .btn-primary { background: linear-gradient(135deg, #7c5cff, #b44cff); color: #fff; box-shadow: 0 8px 22px -8px rgba(124,92,255,.6); }
+  .btn-danger { background: var(--red); color: #fff; }
+  .btn-ghost { background: var(--surface); border: 1px solid var(--border); color: #c5c5cc; }
+
   .hist { display: flex; flex-direction: column; gap: 8px; }
-  .hist-item { padding: 12px; background: #0d0d0d; border: 1px solid #222; border-radius: 8px; font-size: 13px; }
-  .hist-item.fail { border-color: #4a1a1a; }
+  .hist-item { padding: 12px 14px; background: #0a0a0f; border: 1px solid var(--border); border-radius: 12px; font-size: 13px; }
+  .hist-item.fail { border-color: rgba(255,59,48,.4); }
   .hist-head { display: flex; justify-content: space-between; margin-bottom: 4px; }
-  .hist-ok { color: #1db954; font-weight: 700; font-size: 11px; }
-  .hist-fail { color: #ff3b30; font-weight: 700; font-size: 11px; }
-  .hist-meta { color: #888; font-size: 12px; }
-  .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); padding: 12px 20px; border-radius: 10px; font-size: 14px; z-index: 999; }
-  .toast.ok { background: #1db954; color: #fff; }
-  .toast.err { background: #ff3b30; color: #fff; }
+  .hist-ok { color: var(--green); font-weight: 800; font-size: 11px; letter-spacing: .5px; }
+  .hist-fail { color: var(--red); font-weight: 800; font-size: 11px; letter-spacing: .5px; }
+  .hist-meta { color: var(--muted); font-size: 12px; }
+
+  .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); padding: 12px 20px; border-radius: 12px; font-size: 13.5px; font-weight: 600; z-index: 999; box-shadow: 0 12px 30px rgba(0,0,0,.4); }
+  .toast.ok { background: var(--green); color: #fff; }
+  .toast.err { background: var(--red); color: #fff; }
+
+  .header-divider {
+    height: 1px;
+    background: rgba(255,255,255,.12);
+    margin: 0 0 24px;
+  }
 </style>
 </head>
 <body>
 <div class="wrap">
-  <h1>YUNNITED CREW</h1>
-  <p class="sub">Perfil da conta</p>
+
+  <div class="top">
+    <div class="brand-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg></div>
+    <div>
+      <h1>Perfil</h1>
+      <p>YUNNITED CREW · Conta e sessões</p>
+    </div>
+  </div>
+
+  <div class="header-divider"></div>
 
   <nav class="nav">
-    <a href="/admin/admin.html">Produtos</a>
+    <a href="/admin/admin.html">Início</a>
+    <a href="/admin/produtos.html">Produtos</a>
     <a href="/admin/categorias.html">Categorias</a>
     <a href="/admin/dashboard.html">Dashboard</a>
     <a href="/admin/armazenamento.html">Armazenamento</a>
@@ -51,19 +106,17 @@
 
   <section class="section">
     <h2>Conta</h2>
-    <div id="conta"><p style="color:#888">A carregar...</p></div>
+    <div id="conta"><p style="color:#8a8a94">A carregar...</p></div>
   </section>
 
   <section class="section">
-    <h2>Últimos acessos (5)</h2>
-    <div id="hist" class="hist"><p style="color:#888">A carregar...</p></div>
+    <h2>Últimos acessos</h2>
+    <div id="hist" class="hist"><p style="color:#8a8a94">A carregar...</p></div>
   </section>
 
   <section class="section">
     <h2>Sessões</h2>
-    <div style="font-size:13px;color:#888;margin-bottom:12px">
-      Sessão única: ao fazer login noutro dispositivo, esta é encerrada automaticamente.
-    </div>
+    <div style="font-size:13px;color:#8a8a94;margin-bottom:14px">Sessão única: ao fazer login noutro dispositivo, esta é encerrada automaticamente.</div>
     <div class="row">
       <button class="btn btn-ghost" id="logoutBtn">Terminar esta sessão</button>
       <button class="btn btn-danger" id="logoutAllBtn">Encerrar todas as sessões</button>
@@ -83,25 +136,15 @@ function toast(text, ok = true) {
   document.body.appendChild(t);
   setTimeout(() => t.remove(), 3000);
 }
-
-function escapeHtml(s) {
-  return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
-}
-
+function escapeHtml(s) { return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
 function fmtDate(iso) {
-  const d = new Date(iso);
-  const pad = (n) => String(n).padStart(2, '0');
+  const d = new Date(iso); const pad = (n) => String(n).padStart(2, '0');
   return `${pad(d.getDate())}/${pad(d.getMonth()+1)}/${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
-
 function describeUA(ua) {
   if (!ua) return 'Desconhecido';
   if (/curl/i.test(ua)) return 'Curl';
-  if (/Android/i.test(ua)) {
-    if (/Chrome/i.test(ua)) return 'Chrome (Android)';
-    if (/Firefox/i.test(ua)) return 'Firefox (Android)';
-    return 'Android';
-  }
+  if (/Android/i.test(ua)) return /Chrome/i.test(ua) ? 'Chrome (Android)' : /Firefox/i.test(ua) ? 'Firefox (Android)' : 'Android';
   if (/iPhone|iPad/i.test(ua)) return 'iOS';
   if (/Chrome/i.test(ua)) return 'Chrome (Desktop)';
   if (/Firefox/i.test(ua)) return 'Firefox (Desktop)';
@@ -112,15 +155,20 @@ function describeUA(ua) {
 async function loadPerfil() {
   try {
     const [me, hist] = await Promise.all([api.getMe(), api.getHistory()]);
-
     document.getElementById('conta').innerHTML = `
-      <div class="kv"><span>Utilizador</span><b>${escapeHtml(me.username)}</b></div>
-      <div class="kv"><span>Perfil</span><b>${escapeHtml(me.role)}</b></div>
+      <div class="account">
+        <div class="avatar-lg">${escapeHtml(me.username.charAt(0).toUpperCase())}</div>
+        <div class="info">
+          <h3>${escapeHtml(me.username)}</h3>
+          <p>${escapeHtml(me.role)}</p>
+        </div>
+      </div>
       <div class="kv"><span>ID</span><span class="muted">${escapeHtml(me.id)}</span></div>
+      <div class="kv"><span>Estado</span><span style="color:#22c55e;font-weight:700">Sessão ativa</span></div>
     `;
 
     if (!hist.length) {
-      document.getElementById('hist').innerHTML = '<p style="color:#888">Sem histórico.</p>';
+      document.getElementById('hist').innerHTML = '<p style="color:#8a8a94">Sem histórico.</p>';
     } else {
       document.getElementById('hist').innerHTML = hist.map(h => `
         <div class="hist-item ${h.success ? '' : 'fail'}">
@@ -137,17 +185,10 @@ async function loadPerfil() {
   }
 }
 
-document.getElementById('logoutBtn').addEventListener('click', async () => {
-  await api.logoutRemote();
-});
-
+document.getElementById('logoutBtn').addEventListener('click', async () => await api.logoutRemote());
 document.getElementById('logoutAllBtn').addEventListener('click', async () => {
   if (!confirm('Encerrar todas as sessões ativas?\n\nSerás redirecionado para o login.')) return;
-  try {
-    await api.logoutAll();
-  } catch (e) {
-    toast(e.message, false);
-  }
+  try { await api.logoutAll(); } catch (e) { toast(e.message, false); }
 });
 
 loadPerfil();

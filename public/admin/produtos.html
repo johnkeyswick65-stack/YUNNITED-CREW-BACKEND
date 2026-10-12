@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Produtos | YUNNITED CREW</title>
+<style>
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  :root {
+    --bg: #07070a; --surface: #101015; --surface-2: #16161c;
+    --border: rgba(255,255,255,.07); --border-strong: rgba(255,255,255,.14);
+    --text: #f5f5f7; --muted: #8a8a94;
+    --accent: #7c5cff; --green: #22c55e; --red: #ff3b30; --amber: #f5b400;
+  }
+  body {
+    background: radial-gradient(1200px 600px at 50% -200px, #16121f 0%, var(--bg) 55%);
+    color: var(--text); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Arial, sans-serif;
+    margin: 0; padding: 20px 16px 40px; min-height: 100vh; -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 980px; margin: 0 auto; }
+
+  .top { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; }
+  .brand { display: flex; align-items: center; gap: 12px; }
+  .brand-mark svg { width: 22px; height: 22px; }
+  .brand-mark {
+    width: 44px; height: 44px; border-radius: 13px; flex-shrink: 0;
+    background: linear-gradient(135deg, #7c5cff, #b44cff);
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 800; font-size: 15px; color: #fff;
+    box-shadow: 0 8px 22px rgba(124,92,255,.35), inset 0 1px 0 rgba(255,255,255,.2);
+  }
+  .brand h1 { font-size: 19px; font-weight: 800; margin: 0; letter-spacing: .3px; }
+  .brand p { color: var(--muted); font-size: 12.5px; margin: 2px 0 0; }
+
+  .nav { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 22px; }
+  .nav a {
+    color: #c5c5cc; text-decoration: none; padding: 8px 14px; border-radius: 10px;
+    font-size: 13px; background: var(--surface); border: 1px solid var(--border);
+    transition: border-color .15s, color .15s;
+  }
+  .nav a:hover { border-color: var(--border-strong); }
+  .nav a.active { background: #fff; color: #000; border-color: #fff; font-weight: 600; }
+
+  .section {
+    background: linear-gradient(160deg, var(--surface-2) 0%, var(--surface) 100%);
+    border: 1px solid var(--border); border-radius: 18px;
+    padding: 20px; margin-bottom: 18px;
+  }
+  .section h2 { font-size: 15px; font-weight: 700; margin: 0 0 16px; letter-spacing: -.2px; }
+
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .grid .full { grid-column: 1 / -1; }
+  @media (max-width: 600px) { .grid { grid-template-columns: 1fr; } }
+
+  label { display: block; font-size: 12px; color: #a5a5ad; margin-bottom: 6px; font-weight: 600; }
+  input[type=text], input[type=number], select, textarea {
+    width: 100%; padding: 11px 13px; background: #0a0a0f;
+    border: 1px solid var(--border); border-radius: 10px; color: var(--text);
+    font-size: 14px; font-family: inherit; outline: none;
+    transition: border-color .15s, box-shadow .15s;
+  }
+  input:focus, select:focus, textarea:focus {
+    border-color: rgba(124,92,255,.6);
+    box-shadow: 0 0 0 3px rgba(124,92,255,.15);
+  }
+  textarea { resize: vertical; min-height: 80px; }
+  select { appearance: none; background-image: url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238a8a94' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 34px; }
+
+  .file-btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 10px 14px; border-radius: 10px; cursor: pointer;
+    background: #0a0a0f; border: 1px dashed var(--border-strong);
+    color: #c5c5cc; font-size: 13px; font-weight: 600;
+    transition: border-color .15s;
+  }
+  .file-btn:hover { border-color: var(--accent); color: #fff; }
+  .file-btn input { display: none; }
+  .file-name { font-size: 12px; color: var(--muted); margin-top: 6px; }
+  .img-preview {
+    margin-top: 10px; border-radius: 12px; overflow: hidden;
+    border: 1px solid var(--border); background: #0a0a0f;
+    max-height: 220px; display: none;
+  }
+  .img-preview img { display: block; width: 100%; max-height: 220px; object-fit: contain; }
+
+  .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-top: 16px; }
+  .btn {
+    padding: 11px 18px; border-radius: 10px; border: 0;
+    font-size: 14px; font-weight: 700; cursor: pointer;
+    transition: opacity .15s, transform .1s;
+  }
+  .btn:active { transform: scale(.98); }
+  .btn-primary { background: linear-gradient(135deg, #7c5cff, #b44cff); color: #fff; box-shadow: 0 8px 22px -8px rgba(124,92,255,.6); }
+  .btn-ghost { background: transparent; border: 1px solid var(--border-strong); color: #c5c5cc; }
+  .btn-danger { background: var(--red); color: #fff; }
+  .btn-sm { padding: 7px 12px; font-size: 12.5px; }
+  .btn:disabled { opacity: .5; cursor: not-allowed; }
+
+  #msg { min-height: 20px; font-size: 13px; color: #c5c5cc; margin: 10px 0; }
+
+  .cat-block { margin-bottom: 22px; }
+  .cat-head { display: flex; justify-content: space-between; align-items: center; padding: 0 4px 12px; border-bottom: 1px solid var(--border); margin-bottom: 14px; }
+  .cat-head h3 { font-size: 14px; font-weight: 700; margin: 0; }
+  .cat-head span { font-size: 12px; color: var(--muted); }
+
+  .prod-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; }
+  .prod {
+    background: #0a0a0f; border: 1px solid var(--border); border-radius: 14px;
+    overflow: hidden; transition: border-color .15s, transform .15s;
+  }
+  .prod:hover { border-color: var(--border-strong); transform: translateY(-2px); }
+  .prod img { width: 100%; aspect-ratio: 1; object-fit: cover; display: block; background: #16161c; }
+  .prod-body { padding: 11px 12px 13px; }
+  .prod h4 { font-size: 13.5px; font-weight: 700; margin: 0 0 5px; line-height: 1.3; }
+  .prod .price { font-size: 15px; font-weight: 800; letter-spacing: -.3px; }
+  .prod .meta { font-size: 11.5px; color: var(--muted); margin-top: 3px; }
+  .prod .actions { display: flex; gap: 6px; margin-top: 10px; }
+  .prod .actions button { flex: 1; }
+
+  .empty { padding: 22px; text-align: center; color: var(--muted); font-size: 13px; border: 1px dashed var(--border); border-radius: 12px; }
+
+  /* Editor overlay */
+  .overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,.75); backdrop-filter: blur(4px);
+    display: none; align-items: center; justify-content: center; padding: 20px; z-index: 100;
+  }
+  .overlay.open { display: flex; }
+  .editor {
+    background: linear-gradient(160deg, #1a1a22, #101015); border: 1px solid var(--border-strong);
+    border-radius: 18px; max-width: 520px; width: 100%; max-height: 90vh; overflow-y: auto;
+    padding: 22px; box-shadow: 0 30px 80px -30px #000;
+  }
+  .editor-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; }
+  .editor-head h2 { font-size: 16px; font-weight: 700; margin: 0; }
+  .editor-close { background: transparent; border: 0; color: var(--muted); font-size: 22px; cursor: pointer; line-height: 1; padding: 4px 8px; }
+
+  .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); padding: 12px 20px; border-radius: 12px; font-size: 13.5px; font-weight: 600; z-index: 999; box-shadow: 0 12px 30px rgba(0,0,0,.4); }
+  .toast.ok { background: var(--green); color: #fff; }
+  .toast.err { background: var(--red); color: #fff; }
+
+  .header-divider {
+    height: 1px;
+    background: rgba(255,255,255,.12);
+    margin: 0 0 24px;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="top">
+    <div class="brand">
+      <div class="brand-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg></div>
+      <div>
+        <h1>Produtos</h1>
+        <p>YUNNITED CREW · Gestão de catálogo</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="header-divider"></div>
+
+  <nav class="nav">
+    <a href="/admin/admin.html">Início</a>
+    <a href="/admin/produtos.html" class="active">Produtos</a>
+    <a href="/admin/categorias.html">Categorias</a>
+    <a href="/admin/dashboard.html">Dashboard</a>
+    <a href="/admin/armazenamento.html">Armazenamento</a>
+    <a href="/admin/perfil.html">Perfil</a>
+  </nav>
+
+  <section class="section">
+    <h2 id="formTitle">Adicionar produto</h2>
+    <form id="prodForm">
+      <input type="hidden" id="editId">
+      <div class="grid">
+        <div class="full">
+          <label>Nome do produto</label>
+          <input type="text" id="name" required maxlength="120">
+        </div>
+        <div>
+          <label>Preço (MT)</label>
+          <input type="number" id="price" min="0" step="0.01" required>
+        </div>
+        <div>
+          <label>Categoria</label>
+          <select id="category" required></select>
+        </div>
+        <div>
+          <label>Estoque</label>
+          <input type="number" id="stock" min="0" step="1" value="0">
+        </div>
+        <div>
+          <label>Imagem</label>
+          <label class="file-btn" for="image">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M17 8l-5-5-5 5"/><path d="M12 3v12"/></svg>
+            <span>Escolher imagem</span>
+            <input type="file" id="image" accept="image/*">
+          </label>
+          <div class="file-name" id="fileName">Nenhuma imagem selecionada</div>
+        </div>
+        <div class="full">
+          <div class="img-preview" id="imgPreview"><img alt=""></div>
+        </div>
+        <div class="full">
+          <label>Descrição</label>
+          <textarea id="description" maxlength="2000"></textarea>
+        </div>
+      </div>
+      <p id="msg"></p>
+      <div class="row">
+        <button type="submit" class="btn btn-primary" id="saveBtn">Adicionar produto</button>
+        <button type="button" class="btn btn-ghost" id="cancelBtn" style="display:none">Cancelar edição</button>
+      </div>
+    </form>
+  </section>
+
+  <section class="section">
+    <h2>Produtos cadastrados</h2>
+    <div id="list"><p style="color:#8a8a94">A carregar...</p></div>
+  </section>
+</div>
+
+<div class="overlay" id="editorOverlay">
+  <div class="editor">
+    <div class="editor-head">
+      <h2>Editar produto</h2>
+      <button class="editor-close" id="closeEditor">×</button>
+    </div>
+    <form id="editorForm">
+      <input type="hidden" id="eId">
+      <div class="grid">
+        <div class="full">
+          <label>Nome</label>
+          <input type="text" id="eName" required maxlength="120">
+        </div>
+        <div>
+          <label>Preço (MT)</label>
+          <input type="number" id="ePrice" min="0" step="0.01" required>
+        </div>
+        <div>
+          <label>Categoria</label>
+          <select id="eCategory" required></select>
+        </div>
+        <div>
+          <label>Estoque</label>
+          <input type="number" id="eStock" min="0" step="1">
+        </div>
+        <div>
+          <label>Nova imagem (opcional)</label>
+          <label class="file-btn" for="eImage">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M17 8l-5-5-5 5"/><path d="M12 3v12"/></svg>
+            <span>Trocar</span>
+            <input type="file" id="eImage" accept="image/*">
+          </label>
+        </div>
+        <div class="full">
+          <label>Descrição</label>
+          <textarea id="eDescription" maxlength="2000"></textarea>
+        </div>
+      </div>
+      <p id="editorMsg" style="min-height:20px;font-size:13px;color:#c5c5cc;margin:10px 0;"></p>
+      <div class="row">
+        <button type="submit" class="btn btn-primary" id="eSaveBtn">Guardar alterações</button>
+        <button type="button" class="btn btn-ghost" id="eCancelBtn">Fechar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script src="/admin/admin-api.js"></script>
+<script>
+const { api, requireLogin } = window.YCAdmin;
+if (!requireLogin()) throw new Error('redirect');
+
+const $ = (id) => document.getElementById(id);
+
+function toast(text, ok = true) {
+  const t = document.createElement('div');
+  t.className = 'toast ' + (ok ? 'ok' : 'err');
+  t.textContent = text;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 3000);
+}
+
+function escapeHtml(s) {
+  return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+let categories = [];
+
+async function loadCategories() {
+  try {
+    categories = await api.listCategories();
+    const opts = categories.map(c => `<option value="${escapeHtml(c.name)}">${escapeHtml(c.name)}</option>`).join('');
+    $('category').innerHTML = '<option value="">Selecionar</option>' + opts;
+    $('eCategory').innerHTML = opts;
+  } catch (e) {
+    toast('Erro a carregar categorias: ' + e.message, false);
+  }
+}
+
+async function loadProducts() {
+  try {
+    const items = await api.listProducts();
+    if (!items.length) {
+      $('list').innerHTML = '<div class="empty">Sem produtos. Adiciona o primeiro acima.</div>';
+      return;
+    }
+    const byCat = {};
+    items.forEach(p => { (byCat[p.category] = byCat[p.category] || []).push(p); });
+
+    const order = categories.map(c => c.name);
+    const keys = Object.keys(byCat).sort((a,b) => {
+      const ia = order.indexOf(a), ib = order.indexOf(b);
+      return (ia === -1 ? 999 : ia) - (ib === -1 ? 999 : ib);
+    });
+
+    $('list').innerHTML = keys.map(cat => {
+      const prods = byCat[cat];
+      return `<div class="cat-block">
+        <div class="cat-head"><h3>${escapeHtml(cat)}</h3><span>${prods.length} produto(s)</span></div>
+        <div class="prod-grid">
+          ${prods.map(p => `
+            <article class="prod">
+              <img src="${p.image || ''}" alt="" onerror="this.style.opacity=.15">
+              <div class="prod-body">
+                <h4>${escapeHtml(p.name)}</h4>
+                <div class="price">${Number(p.price).toFixed(2)} MT</div>
+                <div class="meta">Estoque: ${p.stock}</div>
+                <div class="actions">
+                  <button class="btn btn-ghost btn-sm" data-act="edit" data-id="${p.id}">Editar</button>
+                  <button class="btn btn-danger btn-sm" data-act="del" data-id="${p.id}" data-name="${escapeHtml(p.name)}">Eliminar</button>
+                </div>
+              </div>
+            </article>
+          `).join('')}
+        </div>
+      </div>`;
+    }).join('');
+
+    document.querySelectorAll('#list button[data-act]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const id = btn.dataset.id;
+        if (btn.dataset.act === 'edit') openEditor(id, items);
+        else if (btn.dataset.act === 'del') removeProduct(id, btn.dataset.name);
+      });
+    });
+  } catch (e) {
+    $('list').innerHTML = '<div class="empty" style="color:#ff3b30">Erro: ' + escapeHtml(e.message) + '</div>';
+  }
+}
+
+async function uploadIfAny(inputEl) {
+  if (!inputEl.files.length) return null;
+  return await api.uploadImage(inputEl.files[0]);
+}
+
+$('image').addEventListener('change', () => {
+  const f = $('image').files[0];
+  $('fileName').textContent = f ? f.name : 'Nenhuma imagem selecionada';
+  if (f) {
+    const r = new FileReader();
+    r.onload = () => { $('imgPreview').style.display = 'block'; $('imgPreview').querySelector('img').src = r.result; };
+    r.readAsDataURL(f);
+  } else {
+    $('imgPreview').style.display = 'none';
+  }
+});
+
+$('prodForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const editingId = $('editId').value;
+  const btn = $('saveBtn');
+  btn.disabled = true;
+  $('msg').textContent = 'A guardar...';
+  try {
+    const url = await uploadIfAny($('image'));
+    const payload = {
+      name: $('name').value.trim(),
+      price: Number($('price').value),
+      category: $('category').value,
+      stock: Number($('stock').value) || 0,
+      description: $('description').value.trim(),
+    };
+    if (editingId) {
+      if (url) payload.imageUrl = url;
+      await api.updateProduct(editingId, payload);
+      toast('Produto atualizado.');
+    } else {
+      payload.imageUrl = url || '';
+      await api.createProduct(payload);
+      toast('Produto adicionado.');
+    }
+    resetForm();
+    loadProducts();
+  } catch (err) {
+    $('msg').textContent = err.message;
+    toast(err.message, false);
+  } finally {
+    btn.disabled = false;
+  }
+});
+
+function resetForm() {
+  $('prodForm').reset();
+  $('editId').value = '';
+  $('imgPreview').style.display = 'none';
+  $('fileName').textContent = 'Nenhuma imagem selecionada';
+  $('msg').textContent = '';
+  $('formTitle').textContent = 'Adicionar produto';
+  $('saveBtn').textContent = 'Adicionar produto';
+  $('cancelBtn').style.display = 'none';
+}
+
+$('cancelBtn').addEventListener('click', resetForm);
+
+function openEditor(id, items) {
+  const p = items.find(x => String(x.id) === String(id));
+  if (!p) return;
+  $('eId').value = p.id;
+  $('eName').value = p.name;
+  $('ePrice').value = p.price;
+  $('eCategory').value = p.category;
+  $('eStock').value = p.stock;
+  $('eDescription').value = p.description || '';
+  $('eImage').value = '';
+  $('editorMsg').textContent = '';
+  $('editorOverlay').classList.add('open');
+}
+
+$('closeEditor').addEventListener('click', () => $('editorOverlay').classList.remove('open'));
+$('eCancelBtn').addEventListener('click', () => $('editorOverlay').classList.remove('open'));
+$('editorOverlay').addEventListener('click', (e) => {
+  if (e.target === $('editorOverlay')) $('editorOverlay').classList.remove('open');
+});
+
+$('editorForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const id = $('eId').value;
+  const btn = $('eSaveBtn');
+  btn.disabled = true;
+  $('editorMsg').textContent = 'A guardar...';
+  try {
+    const url = await uploadIfAny($('eImage'));
+    const patch = {
+      name: $('eName').value.trim(),
+      price: Number($('ePrice').value),
+      category: $('eCategory').value,
+      stock: Number($('eStock').value) || 0,
+      description: $('eDescription').value.trim(),
+    };
+    if (url) patch.imageUrl = url;
+    await api.updateProduct(id, patch);
+    toast('Produto atualizado.');
+    $('editorOverlay').classList.remove('open');
+    loadProducts();
+  } catch (err) {
+    $('editorMsg').textContent = err.message;
+  } finally {
+    btn.disabled = false;
+  }
+});
+
+async function removeProduct(id, name) {
+  if (!confirm(`Eliminar "${name}"?\n\nO produto fica arquivado (podes recuperar mais tarde).`)) return;
+  try {
+    await api.deleteProduct(id);
+    toast('Produto eliminado.');
+    loadProducts();
+  } catch (e) {
+    toast(e.message, false);
+  }
+}
+
+(async () => {
+  await loadCategories();
+  await loadProducts();
+})();
+</script>
+</body>
+</html>
