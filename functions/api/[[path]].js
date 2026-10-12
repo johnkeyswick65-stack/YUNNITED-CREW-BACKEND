@@ -8,9 +8,13 @@ export async function onRequest(context) {
     incomingUrl.search;
 
   const headers = new Headers(request.headers);
-
-  // Não encaminhar cabeçalhos específicos do domínio de origem.
   headers.delete('host');
+
+  // Preservar o IP real do cliente (CF-Connecting-IP é strippado em outbound)
+  const realIp =
+    request.headers.get('cf-connecting-ip') ||
+    request.headers.get('x-forwarded-for')?.split(',')[0].trim();
+  if (realIp) headers.set('x-real-ip', realIp);
 
   const proxyRequest = new Request(targetUrl, {
     method: request.method,
@@ -22,8 +26,6 @@ export async function onRequest(context) {
   });
 
   const upstreamResponse = await fetch(proxyRequest);
-
-  // Preservar o JSON, os códigos HTTP e os cookies da sessão.
   const responseHeaders = new Headers(upstreamResponse.headers);
   responseHeaders.delete('content-length');
 
