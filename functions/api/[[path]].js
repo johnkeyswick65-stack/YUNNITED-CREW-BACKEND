@@ -24,7 +24,7 @@ export async function onRequest(context) {
   const realIp =
     request.headers.get('cf-connecting-ip') ||
     request.headers.get('x-forwarded-for')?.split(',')[0].trim();
-  if (realIp) headers.set('x-real-ip', realIp);
+  if (realIp) headers.set('x-client-ip', realIp);
 
   const proxyRequest = new Request(targetUrl, {
     method: request.method,
