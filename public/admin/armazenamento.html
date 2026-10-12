@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Armazenamento | YUNNITED CREW</title>
+<link rel="stylesheet" href="/admin/admin.css">
+<style>
+  body { background: #0b0b0b; color: #fff; font-family: Arial, sans-serif; margin: 0; padding: 20px; }
+  .wrap { max-width: 1000px; margin: 0 auto; }
+  h1 { font-size: 22px; margin: 0 0 4px; }
+  .sub { color: #888; font-size: 13px; margin: 0 0 20px; }
+  .nav { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; }
+  .nav a { color: #ccc; text-decoration: none; padding: 8px 14px; border: 1px solid #292929; border-radius: 8px; font-size: 13px; }
+  .nav a.active { background: #fff; color: #000; border-color: #fff; }
+  .section { background: #151515; border: 1px solid #292929; border-radius: 14px; padding: 20px; margin-bottom: 20px; }
+  .section h2 { font-size: 15px; margin: 0 0 16px; }
+  .bar { height: 10px; background: #222; border-radius: 10px; overflow: hidden; margin: 10px 0; }
+  .bar-fill { height: 100%; background: #1db954; transition: width .4s; }
+  .bar-fill.warn { background: #f5a623; }
+  .bar-fill.danger { background: #ff3b30; }
+  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin-bottom: 16px; }
+  .stat { padding: 12px; background: #0d0d0d; border: 1px solid #222; border-radius: 10px; }
+  .stat .label { font-size: 11px; color: #888; text-transform: uppercase; letter-spacing: 1px; }
+  .stat .value { font-size: 20px; font-weight: 700; margin-top: 4px; }
+  .stat .value.warn { color: #f5a623; }
+  .toolbar { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; align-items: center; }
+  .btn { padding: 9px 14px; border-radius: 8px; border: 0; font-size: 13px; font-weight: 600; cursor: pointer; }
+  .btn-primary { background: #fff; color: #000; }
+  .btn-ghost { background: transparent; border: 1px solid #333; color: #ccc; }
+  .btn-ghost.active { background: #fff; color: #000; border-color: #fff; }
+  .btn-danger { background: #ff3b30; color: #fff; }
+  .btn:disabled { opacity: .4; cursor: not-allowed; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; }
+  .img-card { position: relative; border-radius: 10px; overflow: hidden; border: 2px solid #222; aspect-ratio: 1; cursor: pointer; }
+  .img-card.in-use { border-color: #1db954; }
+  .img-card img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .img-card .badge { position: absolute; top: 6px; left: 6px; font-size: 10px; font-weight: 700; padding: 3px 6px; border-radius: 4px; letter-spacing: .5px; }
+  .img-card .badge.used { background: #1db954; color: #000; }
+  .img-card .badge.orphan { background: #ff3b30; color: #fff; }
+  .img-card.selected::after { content: ''; position: absolute; inset: 0; background: rgba(255,255,255,.15); border: 3px solid #fff; border-radius: 8px; }
+  .img-card input { position: absolute; top: 6px; right: 6px; width: 20px; height: 20px; }
+  .img-card .size { position: absolute; bottom: 4px; right: 6px; font-size: 10px; color: #fff; background: rgba(0,0,0,.6); padding: 2px 5px; border-radius: 4px; }
+  #msg { min-height: 20px; font-size: 13px; color: #ddd; margin-bottom: 10px; }
+  .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); padding: 12px 20px; border-radius: 10px; font-size: 14px; z-index: 999; }
+  .toast.ok { background: #1db954; color: #fff; }
+  .toast.err { background: #ff3b30; color: #fff; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>YUNNITED CREW</h1>
+  <p class="sub">Armazenamento Cloudinary</p>
+
+  <nav class="nav">
+    <a href="/admin/admin.html">Produtos</a>
+    <a href="/admin/categorias.html">Categorias</a>
+    <a href="/admin/dashboard.html">Dashboard</a>
+    <a href="/admin/armazenamento.html" class="active">Armazenamento</a>
+    <a href="/admin/perfil.html">Perfil</a>
+  </nav>
+
+  <section class="section">
+    <h2>Quota</h2>
+    <div id="quota"><p style="color:#888">A carregar...</p></div>
+  </section>
+
+  <section class="section">
+    <h2>Imagens</h2>
+    <div class="toolbar">
+      <button class="btn btn-ghost active" data-filter="all">Todas</button>
+      <button class="btn btn-ghost" data-filter="in-use">Em uso</button>
+      <button class="btn btn-ghost" data-filter="orphans">Órfãs</button>
+      <button class="btn btn-danger" id="deleteSelected" disabled>Apagar selecionadas</button>
+    </div>
+    <p id="msg"></p>
+    <div class="grid" id="grid"><p style="color:#888">A carregar...</p></div>
+  </section>
+</div>
+
+<script src="/admin/admin-api.js"></script>
+<script>
+const { requireLogin } = window.YCAdmin;
+if (!requireLogin()) throw new Error('redirect');
+
+const TOKEN = () => localStorage.getItem('yc_admin_token');
+const fetchAuth = (url, opts = {}) => fetch(url, {
+  ...opts,
+  headers: { ...(opts.headers || {}), Authorization: 'Bearer ' + TOKEN() },
+});
+
+let allItems = [];
+let filter = 'all';
+const selected = new Set();
+
+function toast(text, ok = true) {
+  const t = document.createElement('div');
+  t.className = 'toast ' + (ok ? 'ok' : 'err');
+  t.textContent = text;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 3000);
+}
+
+function escapeHtml(s) {
+  return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+const fmtBytes = (b) => b < 1024 ? b + ' B' : b < 1024*1024 ? (b/1024).toFixed(1) + ' KB' : (b/1024/1024).toFixed(2) + ' MB';
+
+async function loadQuota() {
+  try {
+    const r = await fetchAuth('/api/cloudinary/usage');
+    const d = await r.json();
+    if (!d.success) throw new Error(d.message);
+    const c = d.credits || { usage: 0, limit: 25, used_percent: 0 };
+    const pct = c.used_percent || 0;
+    const cls = pct < 60 ? '' : pct < 85 ? 'warn' : 'danger';
+    document.getElementById('quota').innerHTML = `
+      <div class="stats">
+        <div class="stat"><div class="label">Plano</div><div class="value">${d.plan}</div></div>
+        <div class="stat"><div class="label">Armazenamento</div><div class="value">${d.storage.usedMB} MB</div></div>
+        <div class="stat"><div class="label">Imagens</div><div class="value">${d.objects?.usage ?? '—'}</div></div>
+        <div class="stat"><div class="label">Bandwidth</div><div class="value">${((d.bandwidth?.usage||0)/1024/1024).toFixed(1)} MB</div></div>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:13px">
+        <span>Créditos usados</span><b>${c.usage} / ${c.limit} (${pct}%)</b>
+      </div>
+      <div class="bar"><div class="bar-fill ${cls}" style="width:${Math.min(100,pct)}%"></div></div>
+    `;
+  } catch (e) {
+    document.getElementById('quota').innerHTML = '<p style="color:#ff3b30">Erro: ' + escapeHtml(e.message) + '</p>';
+  }
+}
+
+async function loadImages() {
+  try {
+    const r = await fetchAuth('/api/cloudinary/all-images');
+    const d = await r.json();
+    if (!d.success) throw new Error(d.message);
+    allItems = d.items;
+    document.getElementById('msg').innerHTML = `
+      <b>${d.total}</b> imagens · <span style="color:#1db954">${d.inUse} em uso</span> ·
+      <span style="color:#ff3b30">${d.orphans} órfãs</span> ·
+      ${fmtBytes(d.totalBytes)} total (${fmtBytes(d.orphanBytes)} órfãs)
+    `;
+    renderGrid();
+  } catch (e) {
+    document.getElementById('grid').innerHTML = '<p style="color:#ff3b30">Erro: ' + escapeHtml(e.message) + '</p>';
+  }
+}
+
+function renderGrid() {
+  const items = allItems.filter(i => filter === 'all' ? true : filter === 'in-use' ? i.inUse : !i.inUse);
+  if (!items.length) {
+    document.getElementById('grid').innerHTML = '<p style="color:#888">Sem imagens nesta vista.</p>';
+    return;
+  }
+  document.getElementById('grid').innerHTML = items.map(i => {
+    const sel = selected.has(i.public_id);
+    return `
+      <div class="img-card ${i.inUse ? 'in-use' : ''} ${sel ? 'selected' : ''}" data-id="${i.public_id}">
+        <img src="${i.url}" loading="lazy" alt="">
+        <span class="badge ${i.inUse ? 'used' : 'orphan'}">${i.inUse ? 'EM USO' : 'ÓRFÃ'}</span>
+        ${!i.inUse ? `<input type="checkbox" data-id="${i.public_id}" ${sel ? 'checked' : ''}>` : ''}
+        <span class="size">${fmtBytes(i.bytes)}</span>
+      </div>
+    `;
+  }).join('');
+
+  document.querySelectorAll('.img-card input[type=checkbox]').forEach(cb => {
+    cb.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (cb.checked) selected.add(cb.dataset.id); else selected.delete(cb.dataset.id);
+      updateDeleteButton();
+      cb.closest('.img-card').classList.toggle('selected', cb.checked);
+    });
+  });
+
+  document.querySelectorAll('.img-card').forEach(el => {
+    el.addEventListener('click', (e) => {
+      if (e.target.tagName === 'INPUT') return;
+      const id = el.dataset.id;
+      const item = allItems.find(i => i.public_id === id);
+      if (!item || item.inUse) return;
+      if (selected.has(id)) { selected.delete(id); } else { selected.add(id); }
+      el.classList.toggle('selected', selected.has(id));
+      const cb = el.querySelector('input[type=checkbox]');
+      if (cb) cb.checked = selected.has(id);
+      updateDeleteButton();
+    });
+  });
+
+  updateDeleteButton();
+}
+
+function updateDeleteButton() {
+  const btn = document.getElementById('deleteSelected');
+  btn.disabled = selected.size === 0;
+  btn.textContent = selected.size ? `Apagar ${selected.size} imagem(ns)` : 'Apagar selecionadas';
+}
+
+document.querySelectorAll('.toolbar [data-filter]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.toolbar [data-filter]').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    filter = btn.dataset.filter;
+    renderGrid();
+  });
+});
+
+document.getElementById('deleteSelected').addEventListener('click', async () => {
+  if (!selected.size) return;
+  const list = [...selected];
+  const totalBytes = list.reduce((s, id) => s + (allItems.find(i => i.public_id === id)?.bytes || 0), 0);
+  if (!confirm(`Apagar ${list.length} imagem(ns) órfã(s)?\n\nTotal: ${fmtBytes(totalBytes)}\n\nEsta ação é permanente no Cloudinary.`)) return;
+
+  const btn = document.getElementById('deleteSelected');
+  btn.disabled = true;
+  let ok = 0, fail = 0;
+  for (const id of list) {
+    try {
+      const r = await fetchAuth('/api/cloudinary/image/' + encodeURIComponent(id), { method: 'DELETE' });
+      const d = await r.json();
+      if (d.success) { ok++; selected.delete(id); allItems = allItems.filter(i => i.public_id !== id); }
+      else fail++;
+    } catch { fail++; }
+  }
+  toast(`Apagadas: ${ok} · Falhas: ${fail}`, fail === 0);
+  renderGrid();
+  loadQuota();
+});
+
+loadQuota();
+loadImages();
+</script>
+</body>
+</html>

@@ -37,7 +37,7 @@ router.get('/all', auth, admin, async (req, res, next) => {
 // Criar
 router.post('/', auth, admin, async (req, res, next) => {
   try {
-    const { name, order, active } = req.body || {};
+    const { name, order, active, icon, color } = req.body || {};
     if (!name || !name.trim()) {
       return res.status(400).json({ success: false, message: 'Nome obrigatório.' });
     }
@@ -51,6 +51,8 @@ router.post('/', auth, admin, async (req, res, next) => {
       slug,
       order: Number(order) || 0,
       active: active !== false,
+      icon: icon || '',
+      color: color || '#000000',
     });
     res.status(201).json({ success: true, category: cat });
   } catch (e) { next(e); }
@@ -66,6 +68,8 @@ router.put('/:id', auth, admin, async (req, res, next) => {
     }
     if (req.body.order !== undefined) patch.order = Number(req.body.order);
     if (req.body.active !== undefined) patch.active = !!req.body.active;
+    if (req.body.icon !== undefined) patch.icon = req.body.icon || '';
+    if (req.body.color !== undefined) patch.color = req.body.color || '#000000';
 
     const before = await Category.findById(req.params.id);
     if (!before) return res.status(404).json({ success: false, message: 'Categoria não encontrada.' });

@@ -116,6 +116,33 @@
       return request('/api/products/' + id, { method: 'DELETE' });
     },
 
+    // CATEGORIAS
+    async listCategories() {
+      const data = await request('/api/categories');
+      return data.items || [];
+    },
+    async listAllCategories() {
+      const data = await request('/api/categories/all');
+      return data.items || [];
+    },
+    async createCategory(payload) {
+      return request('/api/categories', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+    },
+    async updateCategory(id, patch) {
+      return request('/api/categories/' + id, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(patch),
+      });
+    },
+    async deleteCategory(id) {
+      return request('/api/categories/' + id, { method: 'DELETE' });
+    },
+
     // UPLOAD
     async uploadImage(fileOrBlob, filename = 'produto.jpg') {
       const fd = new FormData();

@@ -9,6 +9,8 @@ const mongoose = require('mongoose');
 const authRoutes = require('./src/routes/auth');
 const productRoutes = require('./src/routes/products');
 const categoryRoutes = require('./src/routes/categories');
+const statsRoutes = require('./src/routes/stats');
+const cloudinaryRoutes = require('./src/routes/cloudinary');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -52,6 +54,8 @@ app.get('/api/status', (req, res) => {
 app.use('/api', authRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/categories', categoryRoutes);
+app.use('/api/stats', statsRoutes);
+app.use('/api/cloudinary', cloudinaryRoutes);
 
 if (process.env.NODE_ENV !== 'production') {
   const path = require('path');

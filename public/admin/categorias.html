@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Categorias | YUNNITED CREW</title>
+<link rel="stylesheet" href="/admin/admin.css">
+<style>
+  body { background: #0b0b0b; color: #fff; font-family: Arial, sans-serif; margin: 0; padding: 20px; }
+  .wrap { max-width: 900px; margin: 0 auto; }
+  h1 { font-size: 22px; margin: 0 0 4px; }
+  .sub { color: #888; font-size: 13px; margin: 0 0 24px; }
+  .nav { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; }
+  .nav a { color: #ccc; text-decoration: none; padding: 8px 14px; border: 1px solid #292929; border-radius: 8px; font-size: 13px; }
+  .nav a.active { background: #fff; color: #000; border-color: #fff; }
+  .card { background: #151515; border: 1px solid #292929; border-radius: 14px; padding: 20px; margin-bottom: 20px; }
+  .card h2 { font-size: 16px; margin: 0 0 16px; }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .grid .full { grid-column: 1 / -1; }
+  label { display: block; font-size: 12px; color: #aaa; margin-bottom: 4px; }
+  input[type=text], input[type=number] { width: 100%; padding: 10px 12px; background: #0d0d0d; border: 1px solid #333; border-radius: 8px; color: #fff; font-size: 14px; box-sizing: border-box; }
+  input[type=color] { width: 100%; height: 40px; border: 1px solid #333; border-radius: 8px; background: #0d0d0d; padding: 2px; }
+  .row { display: flex; align-items: center; gap: 8px; margin-top: 8px; }
+  .btn { padding: 10px 16px; border-radius: 8px; border: 0; font-size: 14px; font-weight: 600; cursor: pointer; }
+  .btn-primary { background: #fff; color: #000; }
+  .btn-ghost { background: transparent; border: 1px solid #333; color: #ccc; }
+  .btn-danger { background: #ff3b30; color: #fff; }
+  .btn-sm { padding: 6px 10px; font-size: 12px; }
+  .list { display: flex; flex-direction: column; gap: 10px; }
+  .item { display: flex; align-items: center; gap: 12px; padding: 14px; background: #0d0d0d; border: 1px solid #222; border-radius: 10px; }
+  .item.inactive { opacity: .5; }
+  .dot { width: 16px; height: 16px; border-radius: 50%; flex-shrink: 0; border: 1px solid #333; }
+  .item-main { flex: 1; min-width: 0; }
+  .item-name { font-weight: 600; }
+  .item-meta { font-size: 12px; color: #888; margin-top: 2px; }
+  .item-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+  #message { min-height: 20px; font-size: 13px; color: #ddd; margin-top: 12px; }
+  .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); padding: 12px 20px; border-radius: 10px; font-size: 14px; z-index: 999; }
+  .toast.ok { background: #1db954; color: #fff; }
+  .toast.err { background: #ff3b30; color: #fff; }
+  @media (max-width: 600px) { .grid { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>YUNNITED CREW</h1>
+  <p class="sub">Gestão de categorias</p>
+
+  <nav class="nav">
+    <a href="/admin/admin.html">Produtos</a>
+    <a href="/admin/categorias.html" class="active">Categorias</a>
+    <a href="/admin/dashboard.html">Dashboard</a>
+    <a href="/admin/armazenamento.html">Armazenamento</a>
+    <a href="/admin/perfil.html">Perfil</a>
+  </nav>
+
+  <section class="card">
+    <h2 id="formTitle">Nova categoria</h2>
+    <form id="catForm">
+      <input type="hidden" id="catId">
+      <div class="grid">
+        <div>
+          <label>Nome</label>
+          <input type="text" id="catName" required maxlength="60">
+        </div>
+        <div>
+          <label>Ordem</label>
+          <input type="number" id="catOrder" value="0" min="0">
+        </div>
+        <div>
+          <label>Cor</label>
+          <input type="color" id="catColor" value="#000000">
+        </div>
+        <div>
+          <label>Ícone (URL, opcional)</label>
+          <input type="text" id="catIcon" placeholder="https://res.cloudinary.com/...">
+        </div>
+        <div class="full">
+          <div class="row">
+            <input type="checkbox" id="catActive" checked>
+            <label for="catActive" style="margin:0">Ativa (visível na loja)</label>
+          </div>
+        </div>
+      </div>
+      <div class="row" style="margin-top:14px">
+        <button type="submit" class="btn btn-primary" id="saveBtn">Criar categoria</button>
+        <button type="button" class="btn btn-ghost" id="cancelBtn" style="display:none">Cancelar edição</button>
+      </div>
+      <p id="message"></p>
+    </form>
+  </section>
+
+  <section class="card">
+    <h2>Categorias</h2>
+    <div class="list" id="catList"><p style="color:#888">A carregar...</p></div>
+  </section>
+</div>
+
+<script src="/admin/admin-api.js"></script>
+<script>
+const { api, requireLogin, CATEGORIES } = window.YCAdmin;
+if (!requireLogin()) throw new Error('redirect');
+
+const listEl = document.getElementById('catList');
+const form = document.getElementById('catForm');
+const msg = document.getElementById('message');
+const formTitle = document.getElementById('formTitle');
+const saveBtn = document.getElementById('saveBtn');
+const cancelBtn = document.getElementById('cancelBtn');
+const fields = {
+  id: document.getElementById('catId'),
+  name: document.getElementById('catName'),
+  order: document.getElementById('catOrder'),
+  color: document.getElementById('catColor'),
+  icon: document.getElementById('catIcon'),
+  active: document.getElementById('catActive'),
+};
+
+function toast(text, ok = true) {
+  const t = document.createElement('div');
+  t.className = 'toast ' + (ok ? 'ok' : 'err');
+  t.textContent = text;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 3000);
+}
+
+function resetForm() {
+  form.reset();
+  fields.id.value = '';
+  fields.color.value = '#000000';
+  fields.order.value = 0;
+  fields.active.checked = true;
+  formTitle.textContent = 'Nova categoria';
+  saveBtn.textContent = 'Criar categoria';
+  cancelBtn.style.display = 'none';
+  msg.textContent = '';
+}
+
+function startEdit(cat) {
+  fields.id.value = cat._id;
+  fields.name.value = cat.name;
+  fields.order.value = cat.order;
+  fields.color.value = cat.color || '#000000';
+  fields.icon.value = cat.icon || '';
+  fields.active.checked = cat.active;
+  formTitle.textContent = 'Editar: ' + cat.name;
+  saveBtn.textContent = 'Guardar alterações';
+  cancelBtn.style.display = 'inline-block';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+async function render() {
+  try {
+    const items = await api.listAllCategories();
+    if (!items.length) {
+      listEl.innerHTML = '<p style="color:#888">Sem categorias. Cria a primeira.</p>';
+      return;
+    }
+    listEl.innerHTML = items.map(cat => `
+      <div class="item ${cat.active ? '' : 'inactive'}">
+        <span class="dot" style="background:${cat.color || '#000'}"></span>
+        <div class="item-main">
+          <div class="item-name">${escapeHtml(cat.name)}</div>
+          <div class="item-meta">
+            ${escapeHtml(cat.slug)} · ordem ${cat.order} ·
+            ${cat.active ? 'ativa' : 'inativa'}
+            ${cat.productCount != null ? ' · ' + cat.productCount + ' produto(s)' : ''}
+          </div>
+        </div>
+        <div class="item-actions">
+          <button class="btn btn-ghost btn-sm" data-act="toggle" data-id="${cat._id}" data-active="${cat.active}">
+            ${cat.active ? 'Desativar' : 'Ativar'}
+          </button>
+          <button class="btn btn-primary btn-sm" data-act="edit" data-id="${cat._id}">Editar</button>
+          <button class="btn btn-danger btn-sm" data-act="delete" data-id="${cat._id}" data-name="${escapeHtml(cat.name)}">Apagar</button>
+        </div>
+      </div>
+    `).join('');
+
+    listEl.querySelectorAll('button[data-act]').forEach(btn => {
+      btn.addEventListener('click', () => handleAction(btn.dataset, items));
+    });
+  } catch (e) {
+    listEl.innerHTML = '<p style="color:#ff3b30">' + escapeHtml(e.message) + '</p>';
+  }
+}
+
+function escapeHtml(s) {
+  return String(s == null ? '' : s)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
+async function handleAction(data, items) {
+  const cat = items.find(c => c._id === data.id);
+  if (!cat) return;
+
+  if (data.act === 'edit') return startEdit(cat);
+
+  if (data.act === 'toggle') {
+    try {
+      await api.updateCategory(cat._id, { active: !cat.active });
+      toast(cat.active ? 'Categoria desativada.' : 'Categoria ativada.');
+      render();
+    } catch (e) { toast(e.message, false); }
+    return;
+  }
+
+  if (data.act === 'delete') {
+    if (!confirm(`Apagar "${cat.name}"?\n\nSó é possível se não tiver produtos ativos.`)) return;
+    try {
+      await api.deleteCategory(cat._id);
+      toast('Categoria removida.');
+      render();
+    } catch (e) { toast(e.message, false); }
+  }
+}
+
+form.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const payload = {
+    name: fields.name.value.trim(),
+    order: Number(fields.order.value) || 0,
+    color: fields.color.value,
+    icon: fields.icon.value.trim(),
+    active: fields.active.checked,
+  };
+  const editing = !!fields.id.value;
+  try {
+    saveBtn.disabled = true;
+    if (editing) {
+      await api.updateCategory(fields.id.value, payload);
+      toast('Categoria atualizada.');
+    } else {
+      await api.createCategory(payload);
+      toast('Categoria criada.');
+    }
+    resetForm();
+    render();
+  } catch (err) {
+    msg.textContent = err.message;
+    toast(err.message, false);
+  } finally {
+    saveBtn.disabled = false;
+  }
+});
+
+cancelBtn.addEventListener('click', resetForm);
+
+render();
+</script>
+</body>
+</html>

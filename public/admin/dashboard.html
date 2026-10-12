@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard | YUNNITED CREW</title>
+<link rel="stylesheet" href="/admin/admin.css">
+<style>
+  body { background: #0b0b0b; color: #fff; font-family: Arial, sans-serif; margin: 0; padding: 20px; }
+  .wrap { max-width: 900px; margin: 0 auto; }
+  h1 { font-size: 22px; margin: 0 0 4px; }
+  .sub { color: #888; font-size: 13px; margin: 0 0 24px; }
+  .nav { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; }
+  .nav a { color: #ccc; text-decoration: none; padding: 8px 14px; border: 1px solid #292929; border-radius: 8px; font-size: 13px; }
+  .nav a.active { background: #fff; color: #000; border-color: #fff; }
+  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-bottom: 20px; }
+  .card { background: #151515; border: 1px solid #292929; border-radius: 14px; padding: 18px; }
+  .card .label { font-size: 11px; color: #888; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+  .card .value { font-size: 26px; font-weight: 700; }
+  .card .sub { font-size: 12px; color: #888; margin-top: 4px; }
+  .card.highlight { border-color: #444; background: #1a1a1a; }
+  .section { background: #151515; border: 1px solid #292929; border-radius: 14px; padding: 20px; margin-bottom: 20px; }
+  .section h2 { font-size: 15px; margin: 0 0 16px; }
+  .bar { height: 8px; background: #222; border-radius: 10px; overflow: hidden; margin: 8px 0; }
+  .bar-fill { height: 100%; background: #1db954; transition: width .4s; }
+  .bar-fill.warn { background: #f5a623; }
+  .bar-fill.danger { background: #ff3b30; }
+  .cat-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #1f1f1f; font-size: 14px; }
+  .cat-row:last-child { border-bottom: 0; }
+  .cat-count { color: #888; font-size: 13px; }
+  .kv { display: flex; justify-content: space-between; padding: 6px 0; font-size: 13px; color: #ccc; }
+  .kv b { color: #fff; }
+  .recent { display: grid; grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); gap: 8px; }
+  .recent img { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 8px; border: 1px solid #222; }
+  #msg { color: #ff3b30; font-size: 13px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>YUNNITED CREW</h1>
+  <p class="sub">Dashboard</p>
+
+  <nav class="nav">
+    <a href="/admin/admin.html">Produtos</a>
+    <a href="/admin/categorias.html">Categorias</a>
+    <a href="/admin/dashboard.html" class="active">Dashboard</a>
+    <a href="/admin/armazenamento.html">Armazenamento</a>
+    <a href="/admin/perfil.html">Perfil</a>
+  </nav>
+
+  <p id="msg"></p>
+
+  <div class="cards" id="cards"></div>
+
+  <section class="section">
+    <h2>Produtos por categoria</h2>
+    <div id="byCategory"><p style="color:#888">A carregar...</p></div>
+  </section>
+
+  <section class="section">
+    <h2>Armazenamento Cloudinary</h2>
+    <div id="cloudinary"><p style="color:#888">A carregar...</p></div>
+  </section>
+</div>
+
+<script src="/admin/admin-api.js"></script>
+<script>
+const { api, requireLogin } = window.YCAdmin;
+if (!requireLogin()) throw new Error('redirect');
+
+const fmtMT = (n) => Number(n || 0).toLocaleString('pt-MZ', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' MT';
+
+function card(label, value, sub, highlight) {
+  return `<div class="card ${highlight ? 'highlight' : ''}">
+    <div class="label">${label}</div>
+    <div class="value">${value}</div>
+    ${sub ? `<div class="sub">${sub}</div>` : ''}
+  </div>`;
+}
+
+async function loadStats() {
+  try {
+    const r = await fetch('/api/stats', { headers: { Authorization: 'Bearer ' + localStorage.getItem('yc_admin_token') } });
+    const data = await r.json();
+    if (!data.success) throw new Error(data.message);
+
+    const t = data.totals;
+    document.getElementById('cards').innerHTML =
+      card('Total de produtos', t.total, `${t.published} publicados · ${t.draft} rascunhos · ${t.archived} arquivados`, true) +
+      card('Valor em stock', fmtMT(data.stockValue), 'soma de preço × stock') +
+      card('Categorias ativas', t.categories) +
+      card('Categoria top', data.topCategory ? data.topCategory.name : '—', data.topCategory ? data.topCategory.count + ' produtos' : '');
+
+    const max = Math.max(1, ...data.byCategory.map(c => c.count));
+    document.getElementById('byCategory').innerHTML = data.byCategory.length
+      ? data.byCategory.map(c => `
+          <div class="cat-row">
+            <span>${escapeHtml(c.name)}</span>
+            <span class="cat-count">${c.count} produto(s)</span>
+          </div>
+          <div class="bar"><div class="bar-fill" style="width:${(c.count / max * 100).toFixed(1)}%"></div></div>
+        `).join('')
+      : '<p style="color:#888">Sem dados.</p>';
+  } catch (e) {
+    document.getElementById('msg').textContent = 'Erro stats: ' + e.message;
+  }
+}
+
+async function loadCloudinary() {
+  try {
+    const r = await fetch('/api/cloudinary/usage', { headers: { Authorization: 'Bearer ' + localStorage.getItem('yc_admin_token') } });
+    const data = await r.json();
+    if (!data.success) throw new Error(data.message);
+
+    const s = data.storage;
+    const credits = data.credits || { usage: 0, limit: 25, used_percent: 0 };
+    const pct = credits.used_percent || 0;
+    const cls = pct < 60 ? '' : pct < 85 ? 'warn' : 'danger';
+
+    document.getElementById('cloudinary').innerHTML = `
+      <div class="kv"><span>Plano</span><b>${data.plan}</b></div>
+      <div class="kv"><span>Armazenamento usado</span><b>${s.usedMB} MB</b></div>
+      <div class="kv"><span>Imagens no Cloudinary</span><b>${data.objects?.usage ?? '—'}</b></div>
+      <div class="kv"><span>Bandwidth (mês)</span><b>${((data.bandwidth?.usage || 0) / 1024 / 1024).toFixed(2)} MB</b></div>
+      <div style="margin-top:14px">
+        <div class="kv"><span>Créditos usados</span><b>${credits.usage} / ${credits.limit} (${pct}%)</b></div>
+        <div class="bar"><div class="bar-fill ${cls}" style="width:${Math.min(100, pct)}%"></div></div>
+        <div style="font-size:11px;color:#666;margin-top:4px">
+          No plano Free o Cloudinary usa créditos mensais, não quota em GB.
+        </div>
+      </div>
+      ${data.recent?.length ? `
+        <div style="margin-top:18px">
+          <div style="font-size:12px;color:#888;margin-bottom:8px">Últimos uploads</div>
+          <div class="recent">
+            ${data.recent.map(r => `<img src="${r.url}" alt="" loading="lazy">`).join('')}
+          </div>
+        </div>` : ''}
+    `;
+  } catch (e) {
+    document.getElementById('cloudinary').innerHTML = '<p style="color:#ff3b30">Erro: ' + escapeHtml(e.message) + '</p>';
+  }
+}
+
+function escapeHtml(s) {
+  return String(s == null ? '' : s)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
+loadStats();
+loadCloudinary();
+</script>
+</body>
+</html>
