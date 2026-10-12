@@ -17,7 +17,7 @@ const sign = (user, sessionId) => jwt.sign(
 const logAttempt = (data) => LoginHistory.create(data).catch(() => {});
 
 const clientInfo = (req) => ({
-  ip: req.ip || '',
+  ip: req.headers['cf-connecting-ip'] || req.headers['x-forwarded-for']?.split(',')[0].trim() || req.ip || '',
   userAgent: (req.headers['user-agent'] || '').slice(0, 250),
 });
 
